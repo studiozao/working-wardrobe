@@ -80,11 +80,18 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
     return '<svg class="glyph" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">' + rects + '</svg>';
   }
 
+  // Headline + lede are shared across both personas — only the questions
+  // (and what they unlock: CTA text, answer-echo) differ. The old
+  // per-persona headline presumed a selling history that doesn't fit
+  // Wannabes, so this stays neutral on whether the visitor's tried before.
+  var HERO_COPY = {
+    pain: "That bag by the door doesn't have to sit there.",
+    promise: "One photo. We'll tell you what it's worth, and take it from there.",
+    lede: "Answer three quick things and we'll show you what's actually in it for you."
+  };
+
   var COPY = {
     ss: {
-      pain: "That bag by the door doesn't have to sit there.",
-      promise: "One photo. We sort it, sell what we can, and move the rest on.",
-      lede: "You know how to list things. You just haven't. Let's find out what's actually in that bag.",
       ctaKey: 'q2',
       ctaFallback: 'Get early access',
       ctaMap: {
@@ -130,9 +137,6 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
       ]
     },
     wb: {
-      pain: 'Wondering if that pile is worth anything?',
-      promise: "Let's find out.",
-      lede: 'No listing experience needed. Just answer three quick things.',
       ctaKey: 'q3',
       ctaFallback: 'Get early access',
       ctaMap: {
@@ -191,9 +195,9 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
   var questionsEl = document.getElementById('survey-questions');
   if (!painEl || !promiseEl || !ledeEl || !questionsEl) return;
 
-  painEl.textContent = copy.pain;
-  promiseEl.textContent = copy.promise;
-  ledeEl.textContent = copy.lede;
+  painEl.textContent = HERO_COPY.pain;
+  promiseEl.textContent = HERO_COPY.promise;
+  ledeEl.textContent = HERO_COPY.lede;
 
   function renderDots() {
     if (!dotsEl) return;
