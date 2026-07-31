@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working Wardrobe — the bag by the door, sorted</title>
+<meta name="description" content="Photograph your bag of clothes once. We grade every item and route it to resale, donation or recycling — sold where it sells, so nothing becomes waste.">
+
+<!-- Open Graph / Twitter — matters for ad platforms that preview the link -->
+<meta property="og:title" content="Working Wardrobe — the bag by the door, sorted">
+<meta property="og:description" content="Photograph your bag once. We grade each item and find its best route — sold, donated or recycled.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F4F1E9">
+
+<!--
+  Before running real ad traffic: set FORM_ENDPOINT in script.js.
+  Full Google Sheet + Apps Script setup, ad link format (persona + UTM
+  tags), and the acceptance checklist all live in README.md.
+-->
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="gated">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="brand">Working Wardrobe <span class="tag">early access</span></div>
+
+      <!-- Headline + lede are written by JS from the persona copy table -->
+      <h1 class="reveal">
+        <span class="pain" id="hero-pain"></span>
+        <span class="promise" id="hero-promise"></span>
+      </h1>
+
+      <p class="lede reveal" id="hero-lede"></p>
+
+      <!-- MINI SURVEY — the hard gate. Questions are built by JS per persona. -->
+      <div class="survey" id="survey">
+        <p class="survey-progress" id="survey-progress">Question 1 of 3</p>
+        <div id="survey-questions" aria-live="polite"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ SCREEN 2 — shared, identical for both personas ============
+       Hidden via body.gated .screen-two { display:none } until Q3 is
+       answered. See the survey-engine script in script.js. -->
+  <div class="screen-two">
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how">
+    <div class="wrap">
+      <p class="eyebrow reveal">How it works</p>
+      <h2 class="reveal">Three steps, and only the first one is yours.</h2>
+      <p class="sub reveal">Everything after the photo happens without you lifting a finger.</p>
+
+      <div class="steps">
+        <!-- Step 1 -->
+        <div class="step reveal">
+          <div class="num">1</div>
+          <div>
+            <h3>Photograph your bag</h3>
+            <p>One photo of the pile as it is. No laying things out, no folding, no descriptions.</p>
+          </div>
+        </div>
+
+        <!-- Step 2 — the signature routing cascade -->
+        <div class="step reveal">
+          <div class="num">2</div>
+          <div style="width:100%">
+            <h3>We grade and route each item</h3>
+            <p>We find the best route for each piece — sold where it sells, given a home where it doesn't. Here's where a typical bag ends up:</p>
+
+            <div class="cascade-wrap" aria-hidden="true">
+              <svg class="cascade" viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" role="img">
+                <!-- source bag -->
+                <g transform="translate(24,54)">
+                  <path d="M6 14 h36 l6 42 a6 6 0 0 1 -6 6 h-36 a6 6 0 0 1 -6 -6 z" fill="#ECE7DB" stroke="#C98A2B" stroke-width="2"/>
+                  <path d="M14 14 c0 -10 20 -10 20 0" fill="none" stroke="#C98A2B" stroke-width="2"/>
+                  <!-- camera flash pulse -->
+                  <circle class="flash" cx="24" cy="6" r="7" fill="#C98A2B"/>
+                </g>
+
+                <!-- three destinations on the right -->
+                <g>
+                  <rect x="250" y="16"  width="58" height="26" rx="7" fill="#fff" stroke="#1F6B49" stroke-width="1.5"/>
+                  <text class="bin-label" x="279" y="32" text-anchor="middle">Resale</text>
+
+                  <rect x="250" y="62"  width="58" height="26" rx="7" fill="#fff" stroke="#C98A2B" stroke-width="1.5"/>
+                  <text class="bin-label" x="279" y="78" text-anchor="middle">Donate</text>
+
+                  <rect x="250" y="108" width="58" height="26" rx="7" fill="#fff" stroke="#55534B" stroke-width="1.5"/>
+                  <text class="bin-label" x="279" y="124" text-anchor="middle">Recycle</text>
+                </g>
+
+                <!-- travelling items: each --to sets where it lands -->
+                <rect class="item i1" x="72" y="70" width="14" height="14" rx="3" fill="#1F6B49" style="--to: translate(178px,-42px)"/>
+                <rect class="item i2" x="72" y="70" width="14" height="14" rx="3" fill="#C98A2B" style="--to: translate(178px,4px)"/>
+                <rect class="item i3" x="72" y="70" width="14" height="14" rx="3" fill="#1F6B49" style="--to: translate(178px,-42px)"/>
+                <rect class="item i4" x="72" y="70" width="14" height="14" rx="3" fill="#55534B" style="--to: translate(178px,50px)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step reveal">
+          <div class="num">3</div>
+          <div>
+            <h3>It leaves the house, sorted</h3>
+            <p>No listing, no haggling, no answering buyer messages. Anything that sells, you get paid for — the rest still leaves, just by a different route.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY THIS IS DIFFERENT ============ -->
+  <section class="why">
+    <div class="wrap">
+      <p class="eyebrow reveal">Why bother with this</p>
+      <h2 class="reveal">You know exactly why the bag is still there.</h2>
+
+      <div class="grind reveal">
+        <div class="head">Selling it yourself, the way it actually goes:</div>
+        <ul>
+          <li>A whole evening gone on photos, descriptions and pricing — for one jumper.</li>
+          <li>Not knowing what it's worth, so it never gets listed at all.</li>
+          <li>Lowball offers, "is this still available?", then they vanish.</li>
+          <li>The stuff you could sell sits behind the stuff you can't decide on.</li>
+          <li>So the bag stays by the door. 31% of people say theirs never leaves the house.</li>
+        </ul>
+      </div>
+
+      <div class="relief reveal">
+        <div class="head">The Working Wardrobe way:</div>
+        <p>One photo, and then it's off your plate. We handle the grading, the routing and the buyers — resold where it sells, donated or recycled where it won't. Anything that sells, you get paid for.</p>
+      </div>
+
+      <div class="trust reveal" aria-hidden="true">
+        <span class="item">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#1F6B49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          One photo, not a listing
+        </span>
+        <span class="item">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#1F6B49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          No guessing what it's worth
+        </span>
+        <span class="item">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#1F6B49" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          No buyers to haggle with
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="faq">
+    <div class="wrap">
+      <p class="eyebrow reveal">Before you go</p>
+      <h2 class="reveal">Questions people actually ask.</h2>
+
+      <details class="faq-item reveal">
+        <summary class="faq-q">What if nothing sells?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="faq-a">Nothing to pay either way. If an item isn't worth selling on, we route it to donation or recycling instead of sending it back to you or the bin.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary class="faq-q">Do I pay anything upfront?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="faq-a">No. There's nothing to pay to join the list or to have your bag graded. We take a cut only from items that actually sell.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary class="faq-q">How do I know I'm not being lowballed?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="faq-a">Each item is routed to wherever it's likely to sell for the most, rather than a single flat offer for the whole bag. You can see what each piece was sold for.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary class="faq-q">I don't know what any of it's worth — do I need to?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="faq-a">No. That's the part we do. You don't grade or price anything — you just take the photo and we work out what each piece is worth.</p>
+      </details>
+      <details class="faq-item reveal">
+        <summary class="faq-q">When does this actually launch?<span class="plus" aria-hidden="true"></span></summary>
+        <p class="faq-a">We're onboarding an early access group first. Join the list and we'll email you the moment it's your turn.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CAPTURE ============ -->
+  <section class="final">
+    <div class="wrap">
+      <div class="card reveal">
+        <h2>Clear the bag by the door.</h2>
+        <p>We're opening early access to a first group of people. Leave your email and we'll let you know the moment you can try it.</p>
+
+        <!-- FINAL EMAIL CAPTURE -->
+        <form class="capture" id="form-final" data-endpoint="REPLACE_WITH_YOUR_ENDPOINT" novalidate>
+          <div class="capture-row">
+            <input class="field" type="email" name="email" inputmode="email" autocomplete="email"
+                   pattern="[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}"
+                   placeholder="Your email" aria-label="Your email address" required>
+            <button class="btn" type="submit" data-dynamic-cta>Get early access</button>
+          </div>
+          <p class="microcopy">No spam, and you can leave any time.</p>
+          <p class="form-note ok" role="status">You're on the list. We'll be in touch soon.</p>
+          <p class="form-note err" role="alert">That email doesn't look right. Mind checking it?</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="wrap">
+      <span class="name">Working Wardrobe</span>
+      <span>Working title. An early concept, still being built.</span>
+      <a href="mailto:REPLACE_WITH_YOUR_EMAIL">Contact</a>
+      <a href="#">Privacy</a>
+    </div>
+  </footer>
+
+  <!-- ============ STICKY SCROLL CTA ============ -->
+  <div class="sticky" id="sticky" aria-hidden="true">
+    <div class="wrap">
+      <div class="line">Every piece finds a route.<span>Sold, donated or recycled — join early access.</span></div>
+      <button class="btn" id="sticky-btn" type="button" data-dynamic-cta>Get early access</button>
+    </div>
+  </div>
+
+  </div> <!-- /.screen-two -->
+
+<script src="script.js"></script>
+</body>
+</html>
