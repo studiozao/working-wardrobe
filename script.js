@@ -65,6 +65,21 @@ var PERSONA = (function () {
 var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
 
 (function () {
+  // Growing-pile glyph for the batch-size question — read by eye, not by
+  // counting. Tier 1/2/3 stack progressively taller bars, same stroke
+  // weight and colour language as the routing cascade.
+  var BARS = [
+    { y: 20, h: 4 },
+    { y: 13, h: 4 },
+    { y: 6,  h: 4 }
+  ];
+  function pileGlyph(tier) {
+    var rects = BARS.slice(0, tier).map(function (b) {
+      return '<rect x="4" y="' + b.y + '" width="20" height="' + b.h + '" rx="2"/>';
+    }).join('');
+    return '<svg class="glyph" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">' + rects + '</svg>';
+  }
+
   var COPY = {
     ss: {
       pain: "That bag by the door doesn't have to sit there.",
@@ -76,6 +91,14 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
         "Don't know what it's worth": 'Get my free grade',
         "Takes too much time to list": 'Get it off my hands',
         "Don't want to deal with buyers and haggling": 'Skip the haggling, get started'
+      },
+      // Echoes the visitor's own Q2 answer back in Screen 2 (optional — see
+      // the answer-echo note in index.html / style.css). Fallback answers
+      // ("Something else") have no line and stay hidden, on purpose.
+      echoMap: {
+        "Don't know what it's worth": "You said you don't know what it's worth — that's the part we do.",
+        "Takes too much time to list": "You said listing takes too much time — here it's one photo, not an evening.",
+        "Don't want to deal with buyers and haggling": "You said the haggling's the worst part — here's what replaces it."
       },
       questions: [
         {
@@ -96,7 +119,13 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
         {
           key: 'q3',
           text: 'Roughly how many items are we talking about?',
-          options: ['1–5', '6–15', 'More than 15']
+          // Objects (not plain strings) so a pile-size glyph renders
+          // alongside each option — see renderQuestion().
+          options: [
+            { label: '1–5', glyphTier: 1 },
+            { label: '6–15', glyphTier: 2 },
+            { label: 'More than 15', glyphTier: 3 }
+          ]
         }
       ]
     },
@@ -110,6 +139,11 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
         "Not sure it's worth the effort": "See if it's worth it",
         "Don't know how to get started": 'Show me how it works',
         "Don't think my stuff is worth much": 'Get a free estimate'
+      },
+      echoMap: {
+        "Not sure it's worth the effort": "You weren't sure it's worth the effort — here's the proof.",
+        "Don't know how to get started": "You didn't know where to start — here's exactly how it works.",
+        "Don't think my stuff is worth much": "You weren't sure your stuff was worth much — here's how we find out."
       },
       questions: [
         {
@@ -141,10 +175,19 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
   var qIndex = 0;
   var ctaText = copy.ctaFallback;
 
+  // Pacing accelerates Q1 → Q3: the highlighted "picked" state holds
+  // longest on the first tap (still new, needs the moment to register)
+  // and shortest on the last (should feel like the fastest, most automatic
+  // tap of the three, building momentum toward the reveal).
+  var PICKED_HOLD_MS = [320, 220, 150];
+  var LEAVE_MS = 180;
+  var BRIDGE_HOLD_MS = 650;
+
   var painEl = document.getElementById('hero-pain');
   var promiseEl = document.getElementById('hero-promise');
   var ledeEl = document.getElementById('hero-lede');
   var progressEl = document.getElementById('survey-progress');
+  var dotsEl = document.getElementById('survey-dots');
   var questionsEl = document.getElementById('survey-questions');
   if (!painEl || !promiseEl || !ledeEl || !questionsEl) return;
 
@@ -152,21 +195,38 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
   promiseEl.textContent = copy.promise;
   ledeEl.textContent = copy.lede;
 
+  function renderDots() {
+    if (!dotsEl) return;
+    var dots = dotsEl.querySelectorAll('.dot');
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle('done', i < qIndex);
+      dot.classList.toggle('current', i === qIndex);
+    });
+  }
+
   function renderQuestion() {
     var q = copy.questions[qIndex];
-    progressEl.textContent = 'Question ' + (qIndex + 1) + ' of ' + copy.questions.length;
+    if (progressEl) progressEl.textContent = 'Question ' + (qIndex + 1) + ' of ' + copy.questions.length;
+    renderDots();
 
     var panel = document.createElement('div');
     panel.className = 'q active' + (reduceMotion ? '' : ' entering');
     panel.innerHTML = '<p class="q-text">' + q.text + '</p><div class="opts"></div>';
 
     var opts = panel.querySelector('.opts');
-    q.options.forEach(function (label) {
+    q.options.forEach(function (option) {
+      var hasGlyph = typeof option === 'object';
+      var label = hasGlyph ? option.label : option;
+
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'opt';
-      btn.textContent = label;
-      btn.addEventListener('click', function () { pick(q.key, label, btn); });
+      btn.className = hasGlyph ? 'opt opt-glyph' : 'opt';
+      if (hasGlyph) {
+        btn.innerHTML = pileGlyph(option.glyphTier) + '<span>' + label + '</span>';
+      } else {
+        btn.textContent = label;
+      }
+      btn.addEventListener('click', function () { pick(q.key, label, btn, opts); });
       opts.appendChild(btn);
     });
 
@@ -174,29 +234,57 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
     questionsEl.appendChild(panel);
   }
 
-  function pick(key, label, btnEl) {
+  function pick(key, label, btnEl, optsEl) {
     SURVEY_ANSWERS[key] = label;
     if (key === copy.ctaKey) { ctaText = copy.ctaMap[label] || copy.ctaFallback; }
 
+    // Register the choice (a half-second "yes, that's logged") before
+    // anything moves — the interaction-design equivalent of a nod, and
+    // what keeps this feeling like a conversation rather than a form.
     btnEl.classList.add('picked');
+    Array.prototype.forEach.call(optsEl.children, function (el) {
+      if (el !== btnEl) el.disabled = true;
+    });
+
     var panel = questionsEl.querySelector('.q');
+    var isLast = qIndex >= copy.questions.length - 1;
 
     var advance = function () {
-      qIndex += 1;
-      if (qIndex < copy.questions.length) {
-        renderQuestion();
-      } else {
-        revealScreenTwo();
-      }
+      var leave = function () {
+        if (panel && !reduceMotion) {
+          panel.classList.add('leaving');
+          panel.classList.remove('entering');
+          setTimeout(afterLeave, LEAVE_MS);
+        } else {
+          afterLeave();
+        }
+      };
+      var afterLeave = function () {
+        if (isLast) {
+          showBridge();
+        } else {
+          qIndex += 1;
+          renderQuestion();
+        }
+      };
+      leave();
     };
 
-    if (panel && !reduceMotion) {
-      panel.classList.add('leaving');
-      panel.classList.remove('entering');
-      setTimeout(advance, 180);
-    } else {
-      advance();
-    }
+    var hold = reduceMotion ? 0 : (PICKED_HOLD_MS[qIndex] || PICKED_HOLD_MS[PICKED_HOLD_MS.length - 1]);
+    setTimeout(advance, hold);
+  }
+
+  // The reveal is a beat, not a page load: a short bridging line shown in
+  // place of Q3's options, then Screen 2 unhides underneath it.
+  function showBridge() {
+    renderDots();
+    var bridge = document.createElement('p');
+    bridge.className = 'survey-bridge';
+    bridge.textContent = "Right — here's how it actually works.";
+    questionsEl.innerHTML = '';
+    questionsEl.appendChild(bridge);
+
+    setTimeout(revealScreenTwo, reduceMotion ? 0 : BRIDGE_HOLD_MS);
   }
 
   function revealScreenTwo() {
@@ -205,6 +293,15 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
     document.querySelectorAll('[data-dynamic-cta]').forEach(function (el) {
       el.textContent = ctaText;
     });
+
+    var echoEl = document.getElementById('answer-echo');
+    if (echoEl) {
+      var echoText = copy.echoMap && copy.echoMap[SURVEY_ANSWERS[copy.ctaKey]];
+      if (echoText) {
+        echoEl.textContent = echoText;
+        echoEl.classList.add('show');
+      }
+    }
 
     var how = document.querySelector('.how');
     if (how && how.scrollIntoView) {
@@ -230,14 +327,25 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
   els.forEach(function (el) { io.observe(el); });
 })();
 
-/* ---- Play the routing cascade only when it's on screen ---- */
+/* ---- Play the routing cascade only when it's on screen ----
+   A beat of stillness (450ms) before it starts, so arriving at this
+   section reads as "watch this" rather than something that was already
+   moving. Skipped under reduced motion, same as everywhere else. */
 (function () {
   var svg = document.querySelector('.cascade');
   if (!svg) return;
-  if (!('IntersectionObserver' in window)) { svg.classList.add('run'); return; }
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!('IntersectionObserver' in window) || reduceMotion) { svg.classList.add('run'); return; }
+
+  var startTimer = null;
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
-      svg.classList.toggle('run', e.isIntersecting); // pause when scrolled away
+      if (e.isIntersecting) {
+        startTimer = setTimeout(function () { svg.classList.add('run'); }, 450);
+      } else {
+        clearTimeout(startTimer);
+        svg.classList.remove('run'); // pause when scrolled away
+      }
     });
   }, { threshold: 0.3 });
   io.observe(svg);

@@ -28,6 +28,32 @@
     <div class="wrap">
       <div class="brand">Working Wardrobe <span class="tag">early access</span></div>
 
+      <!-- HERO PROOF CARD — a small mock of a real result: item, grade,
+           route. Same inline-SVG language as the routing cascade below.
+           Flag for design review before shipping wide (see style.css). -->
+      <svg class="hero-proof reveal" viewBox="0 0 260 92" xmlns="http://www.w3.org/2000/svg"
+           role="img" aria-label="Example: a jumper graded B+, routed to resale">
+        <rect x="1" y="1" width="258" height="90" rx="16" fill="#fff" stroke="#D8D2C4" stroke-width="1.5"/>
+
+        <!-- item silhouette -->
+        <g transform="translate(16,20)">
+          <rect x="0" y="0" width="52" height="52" rx="12" fill="#ECE7DB"/>
+          <path d="M14 14 h24 l4 8 -6 4 v22 h-20 v-22 l-6 -4 z" fill="none" stroke="#55534B" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+
+        <!-- grade -->
+        <g>
+          <text class="proof-label" x="84" y="38">GRADE</text>
+          <text class="proof-grade" x="84" y="58">B+</text>
+        </g>
+
+        <!-- route -->
+        <g transform="translate(150,28)">
+          <rect x="0" y="0" width="94" height="30" rx="15" fill="#fff" stroke="#1F6B49" stroke-width="1.5"/>
+          <text class="proof-route" x="47" y="19" text-anchor="middle">→ Resale</text>
+        </g>
+      </svg>
+
       <!-- Headline + lede are written by JS from the persona copy table -->
       <h1 class="reveal">
         <span class="pain" id="hero-pain"></span>
@@ -36,9 +62,14 @@
 
       <p class="lede reveal" id="hero-lede"></p>
 
-      <!-- MINI SURVEY — the hard gate. Questions are built by JS per persona. -->
+      <!-- MINI SURVEY — the hard gate. Questions are built by JS per persona.
+           Progress is shown as understated dots, not a "Step 1 of 3" label;
+           the label still exists for screen readers (sr-only, aria-live). -->
       <div class="survey" id="survey">
-        <p class="survey-progress" id="survey-progress">Question 1 of 3</p>
+        <div class="survey-dots" id="survey-dots" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+        <p class="sr-only" id="survey-progress" aria-live="polite">Question 1 of 3</p>
         <div id="survey-questions" aria-live="polite"></div>
       </div>
     </div>
@@ -122,6 +153,10 @@
     <div class="wrap">
       <p class="eyebrow reveal">Why bother with this</p>
       <h2 class="reveal">You know exactly why the bag is still there.</h2>
+
+      <!-- Optional answer-echo — set by script.js only when the visitor's
+           own Q2/Q3 answer has a mapped line. Hidden otherwise. -->
+      <p class="answer-echo reveal" id="answer-echo"></p>
 
       <div class="grind reveal">
         <div class="head">Selling it yourself, the way it actually goes:</div>
