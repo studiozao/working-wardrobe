@@ -12,7 +12,10 @@
   --shadow:     0 1px 2px rgba(30,29,25,.06), 0 8px 24px rgba(30,29,25,.06);
 
   --font-body: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-say:  Georgia, "Times New Roman", serif; /* used only for spoken lines */
+  /* One typeface, full stop. Hierarchy comes from weight and colour, not
+     a serif/sans switch — a serif-italic headline reads as editorial/
+     lifestyle-blog, not the bold flat sans of the category's actual
+     Instagram-ad benchmarks (Vinted, Depop, ThredUp, Trashie). */
 
   --wrap: 640px;
 }
@@ -56,8 +59,6 @@ p { margin: 0 0 1em; }
   font-weight: 600;
   margin: 0 0 18px;
 }
-.say { font-family: var(--font-say); font-style: italic; }
-
 /* ---------- Hero ---------- */
 .hero { padding-top: 40px; padding-bottom: 40px; }
 .brand {
@@ -77,42 +78,27 @@ p { margin: 0 0 1em; }
   vertical-align: middle;
 }
 
-/* ---------- Hero proof card ----------
-   Small mock of a real result: an item, its grade, its route. Proof of
-   mechanism in the first three seconds, built from the same inline-SVG
-   language as the routing cascade — no stock photography, no generic
-   illustration. Flag for design review before shipping wide: this is the
-   one visual element in this pass without a prior iteration cycle. */
-.hero-proof { margin-top: 24px; max-width: 280px; }
-.hero-proof .proof-label {
-  font: 600 10px var(--font-body);
-  fill: var(--ink-soft);
-  letter-spacing: .04em;
-}
-.hero-proof .proof-grade {
-  font: 650 13px var(--font-body);
-  fill: var(--ink);
-}
-.hero-proof .proof-route {
-  font: 600 11px var(--font-body);
-  fill: var(--green);
-}
 
 .hero h1 {
   font-size: clamp(30px, 8.5vw, 46px);
   margin-top: 34px;
+  letter-spacing: -0.02em;
 }
 .hero .pain {
-  /* Deliberately smaller than .promise — the complaint sets up the line,
-     the resolution is the one the eye should land on. */
-  font-size: 0.74em;
-  font-family: var(--font-say);
-  font-style: italic;
-  font-weight: 400;
+  /* Deliberately smaller and lighter than .promise — the complaint sets
+     up the line, the resolution is the one the eye should land on.
+     Hierarchy is weight + colour now, not a serif/sans switch — a full
+     sans-serif headline reads as the bold, flat register this category's
+     actual Instagram ads use, not an editorial/lifestyle-blog voice. */
+  font-size: 0.8em;
+  font-weight: 500;
   color: var(--ink-soft);
-  letter-spacing: -0.005em;
 }
-.hero .promise { display: block; margin-top: 12px; }
+.hero .promise {
+  display: block;
+  margin-top: 10px;
+  font-weight: 800;
+}
 .hero .worth { color: var(--ochre); }
 .hero .lede {
   /* Intermediate step between the H1 (30–46px/650) and body copy (17px/400)
@@ -171,13 +157,10 @@ body.gated .hero .wrap { width: 100%; }
 .q { display: none; }
 .q.active { display: block; }
 
-/* The brief bridge shown after Q3, before Screen 2 reveals — reuses the
-   .say italic-serif voice already established for the hero's .pain line,
-   so it reads as the same "person speaking" register, not a system message. */
+/* The brief bridge shown after Q3, before Screen 2 reveals. */
 .survey-bridge {
-  font-family: var(--font-say);
-  font-style: italic;
   font-size: 19px;
+  font-weight: 650;
   color: var(--ink);
   opacity: 0;
   animation: qIn .3s ease forwards;
@@ -378,6 +361,26 @@ form.done .microcopy { display: none; }
 .step h3 { font-size: 18px; margin-bottom: 4px; }
 .step p { margin: 0; color: var(--ink-soft); font-size: 15.5px; }
 
+/* Proof card — a single worked example (item, grade, route) that leads
+   into the cascade below it. Moved here from the hero: it's a companion
+   to the cascade's "here's where a typical bag ends up", not a
+   duplicate of it — one example, then the fuller routing animation. */
+.proof-card { margin: 18px 0 6px; max-width: 280px; }
+.proof-bridge { margin: 14px 0 0; font-size: 15.5px; color: var(--ink-soft); }
+.proof-card .proof-label {
+  font: 600 10px var(--font-body);
+  fill: var(--ink-soft);
+  letter-spacing: .04em;
+}
+.proof-card .proof-grade {
+  font: 800 13px var(--font-body);
+  fill: var(--ink);
+}
+.proof-card .proof-route {
+  font: 600 11px var(--font-body);
+  fill: var(--green);
+}
+
 /* The signature: routing cascade under step 2 — the page's payoff visual,
    given more room to breathe than a supporting graphic would need. The
    pre-animation stillness beat is timed in script.js, not here. */
@@ -394,9 +397,8 @@ form.done .microcopy { display: none; }
    else" / fallback answers). */
 .answer-echo {
   display: none;
-  font-family: var(--font-say);
-  font-style: italic;
   font-size: 18px;
+  font-weight: 600;
   color: var(--ink-soft);
   margin: -8px 0 22px;
 }

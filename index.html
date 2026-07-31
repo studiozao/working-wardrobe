@@ -28,32 +28,6 @@
     <div class="wrap">
       <div class="brand">Working Wardrobe <span class="tag">early access</span></div>
 
-      <!-- HERO PROOF CARD — a small mock of a real result: item, grade,
-           route. Same inline-SVG language as the routing cascade below.
-           Flag for design review before shipping wide (see style.css). -->
-      <svg class="hero-proof reveal" viewBox="0 0 260 92" xmlns="http://www.w3.org/2000/svg"
-           role="img" aria-label="Example: a jumper graded B+, routed to resale">
-        <rect x="1" y="1" width="258" height="90" rx="16" fill="#fff" stroke="#D8D2C4" stroke-width="1.5"/>
-
-        <!-- item silhouette -->
-        <g transform="translate(16,20)">
-          <rect x="0" y="0" width="52" height="52" rx="12" fill="#ECE7DB"/>
-          <path d="M14 14 h24 l4 8 -6 4 v22 h-20 v-22 l-6 -4 z" fill="none" stroke="#55534B" stroke-width="2" stroke-linejoin="round"/>
-        </g>
-
-        <!-- grade -->
-        <g>
-          <text class="proof-label" x="84" y="38">GRADE</text>
-          <text class="proof-grade" x="84" y="58">B+</text>
-        </g>
-
-        <!-- route -->
-        <g transform="translate(150,28)">
-          <rect x="0" y="0" width="94" height="30" rx="15" fill="#fff" stroke="#1F6B49" stroke-width="1.5"/>
-          <text class="proof-route" x="47" y="19" text-anchor="middle">→ Resale</text>
-        </g>
-      </svg>
-
       <!-- Headline + lede are written by JS from the persona copy table -->
       <h1 class="reveal">
         <span class="pain" id="hero-pain"></span>
@@ -102,7 +76,36 @@
           <div class="num">2</div>
           <div style="width:100%">
             <h3>We grade and route each item</h3>
-            <p>We find the best route for each piece — sold where it sells, given a home where it doesn't. Here's where a typical bag ends up:</p>
+            <p>We find the best route for each piece — sold where it sells, given a home where it doesn't. Take one item, for example:</p>
+
+            <!-- PROOF CARD — a single worked example (item, grade, route),
+                 leading into the cascade's fuller routing animation below.
+                 Same inline-SVG language as the cascade. Flag for design
+                 review before shipping wide (see style.css). -->
+            <svg class="proof-card reveal" viewBox="0 0 260 92" xmlns="http://www.w3.org/2000/svg"
+                 role="img" aria-label="Example: a jumper graded B+, routed to resale">
+              <rect x="1" y="1" width="258" height="90" rx="16" fill="#fff" stroke="#D8D2C4" stroke-width="1.5"/>
+
+              <!-- item silhouette -->
+              <g transform="translate(16,20)">
+                <rect x="0" y="0" width="52" height="52" rx="12" fill="#ECE7DB"/>
+                <path d="M14 14 h24 l4 8 -6 4 v22 h-20 v-22 l-6 -4 z" fill="none" stroke="#55534B" stroke-width="2" stroke-linejoin="round"/>
+              </g>
+
+              <!-- grade -->
+              <g>
+                <text class="proof-label" x="84" y="38">GRADE</text>
+                <text class="proof-grade" x="84" y="58">B+</text>
+              </g>
+
+              <!-- route -->
+              <g transform="translate(150,28)">
+                <rect x="0" y="0" width="94" height="30" rx="15" fill="#fff" stroke="#1F6B49" stroke-width="1.5"/>
+                <text class="proof-route" x="47" y="19" text-anchor="middle">→ Resale</text>
+              </g>
+            </svg>
+
+            <p class="proof-bridge">And here's the fuller picture — where a typical bag ends up:</p>
 
             <div class="cascade-wrap" aria-hidden="true">
               <svg class="cascade" viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" role="img">
