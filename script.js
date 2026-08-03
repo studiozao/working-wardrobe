@@ -128,7 +128,7 @@ var COPY = {
     head: "Stock that stalled. One photo and it moves.",
     lede: "You've already listed things. This is the same outcome without the evening it usually costs.",
     hookNote: "Tap the shutter — that's the whole job.",
-    doneLine: "We'll be in touch shortly — you'll get exclusive early access before we open this up more widely.",
+    doneLine: "We'll email you the moment the app drops — you'll get exclusive early access before anyone else.",
     // Which question's answer drives the answer-echo in "Why bother".
     // The CTA itself is a static "Get early access" everywhere now.
     echoKey: 'q2',
@@ -164,7 +164,7 @@ var COPY = {
     head: "Never sold a thing? Start with a photo.",
     lede: "No listings, no pricing, nothing to learn. You take one picture and we'll tell you what's there.",
     hookNote: "Have a go — nothing happens until you say so.",
-    doneLine: "We'll be in touch shortly — you'll get exclusive early access before we open this up more widely.",
+    doneLine: "We'll email you the moment the app drops — you'll get exclusive early access before anyone else.",
     echoKey: 'q3',
     echoMap: {
       "Not sure it's worth the effort": "You weren't sure it's worth the effort — here's the proof.",
