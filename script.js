@@ -130,17 +130,13 @@ var COPY = {
     hookNote: "Tap the shutter — that's the whole job.",
     reassure: "Free to grade. We take a cut only from what sells.",
     doneLine: "We'll email you the moment your grades are ready to run.",
-    ctaKey: 'q2',
-    ctaFallback: 'Get early access',
-    ctaMap: {
-      "Don't know what it's worth": 'Get my free grade',
-      "Takes too much time to list": 'Get it off my hands',
-      "Don't want to deal with buyers and haggling": 'Skip the haggling, get started'
-    },
+    // Which question's answer drives the answer-echo in "Why bother".
+    // The CTA itself is a static "Get early access" everywhere now.
+    echoKey: 'q2',
     echoMap: {
       "Don't know what it's worth": "You said you don't know what it's worth — that's the part we do.",
       "Takes too much time to list": "You said listing takes too much time — here it's one photo, not an evening.",
-      "Don't want to deal with buyers and haggling": "You said the haggling's the worst part — here's what replaces it."
+      "Don't want to deal with buyers and the admin": "You said the admin's the worst part — here's what replaces it."
     },
     questions: [
       {
@@ -154,14 +150,14 @@ var COPY = {
         options: [
           "Don't know what it's worth",
           'Takes too much time to list',
-          "Don't want to deal with buyers and haggling",
+          "Don't want to deal with buyers and the admin",
           'Something else'
         ]
       },
       {
         key: 'q3',
-        text: 'Roughly how many items are we talking about?',
-        options: ['1–5', '6–15', 'More than 15']
+        text: 'Roughly how many items are we talking about, at this moment in time?',
+        options: ['1 to 5', '6 to 15', 'More than 15']
       }
     ]
   },
@@ -171,13 +167,7 @@ var COPY = {
     hookNote: "Have a go — nothing happens until you say so.",
     reassure: "Nothing to pay, nothing to learn. You can stop at any point.",
     doneLine: "We'll email you a free test grade first, so you can see it before you commit to anything.",
-    ctaKey: 'q3',
-    ctaFallback: 'Get early access',
-    ctaMap: {
-      "Not sure it's worth the effort": "See if it's worth it",
-      "Don't know how to get started": 'Show me how it works',
-      "Don't think my stuff is worth much": 'Get a free estimate'
-    },
+    echoKey: 'q3',
     echoMap: {
       "Not sure it's worth the effort": "You weren't sure it's worth the effort — here's the proof.",
       "Don't know how to get started": "You didn't know where to start — here's exactly how it works.",
@@ -210,7 +200,6 @@ var COPY = {
 
 var copy = COPY[PERSONA] || COPY.ss;
 var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-var ctaText = copy.ctaFallback;
 
 /* ---- Hero + camera hook + survey ---- */
 (function () {
@@ -262,18 +251,10 @@ var ctaText = copy.ctaFallback;
     return copy.questions.filter(function (q) { return SURVEY_ANSWERS[q.key]; }).length;
   }
 
-  function updateCta() {
-    var label = copy.ctaMap[SURVEY_ANSWERS[copy.ctaKey]] || copy.ctaFallback;
-    ctaText = label;
-    document.querySelectorAll('[data-dynamic-cta]').forEach(function (el) {
-      el.textContent = label;
-    });
-  }
-
   function updateEcho() {
     var echoEl = document.getElementById('answer-echo');
     if (!echoEl) return;
-    var echoText = copy.echoMap[SURVEY_ANSWERS[copy.ctaKey]];
+    var echoText = copy.echoMap[SURVEY_ANSWERS[copy.echoKey]];
     if (echoText) {
       echoEl.textContent = echoText;
       echoEl.classList.add('show');
@@ -342,7 +323,6 @@ var ctaText = copy.ctaFallback;
           opts.querySelectorAll('.q-opt').forEach(function (o) {
             o.classList.toggle('picked', o === btn);
           });
-          updateCta();
           updateEcho();
           updateProgress();
         });
@@ -354,7 +334,6 @@ var ctaText = copy.ctaFallback;
   }
 
   renderQuestions();
-  updateCta();
   updateProgress();
 
   // The inline CTA has no email field of its own — once unlocked, it

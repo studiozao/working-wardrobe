@@ -28,9 +28,9 @@ On load, the page reads a `persona` query param:
 
 The hero headline, lede, camera-hook note, survey questions, reassurance line, and post-signup message are all persona-specific — see the `COPY` object at the top of `script.js`.
 
-Answering the persona's keyed question (Q2 for Stalled Seller, Q3 for Wannabe) sets the **CTA button text** dynamically and live — e.g. answering "Don't know what it's worth" changes the button to "Get my free grade" instead of the generic "Get early access", updating immediately as they tap, not just once at the end. It also may surface an **answer-echo** line in "Why bother" (e.g. "You said the haggling's the worst part — here's what replaces it") — hidden for fallback answers like "Something else".
+Every CTA button on the page reads a static **"Get early access"** — there's no per-answer CTA text mapping anymore. Answering the persona's keyed question (Q2 for Stalled Seller, Q3 for Wannabe) still surfaces an **answer-echo** line in "Why bother" (e.g. "You said the admin's the worst part — here's what replaces it") — hidden for fallback answers like "Something else". See `echoKey`/`echoMap` in the `COPY` object at the top of `script.js`.
 
-There are three CTA touchpoints, all sharing the same dynamic text: a button right under the survey (locked/dimmed until all 3 are answered — clicking it scrolls to the real form and focuses the email field, it doesn't collect email itself), the sticky bottom bar (visible once unlocked and the hero is scrolled past), and the actual email form in the final green card at the bottom of the page.
+There are three CTA touchpoints: a button right under the survey (locked/dimmed until all 3 are answered — clicking it scrolls to the real form and focuses the email field, it doesn't collect email itself), the sticky bottom bar (visible once unlocked and the hero is scrolled past), and the actual email form in the final green card at the bottom of the page.
 
 ## What's different from the very first pass at design 1a
 
