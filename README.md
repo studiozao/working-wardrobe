@@ -68,11 +68,11 @@ The email form POSTs to `FORM_ENDPOINT` (set at the top of `script.js`). It's a 
 
 To collect real sign-ups in a Google Sheet with no separate backend:
 
-**Each persona gets its own tab, not a shared sheet.** Stalled Seller and Wannabe ask three different questions — a single "Q2" column would mean "what's stopping you" for one persona and "have you tried selling before" for the other, which is confusing the moment both are in the same view. The script below routes each submission to a **"Stalled Seller"** tab or a **"Wannabe"** tab (auto-created on first submission, with headers that match that persona's actual questions), inside the same spreadsheet.
+**One tab per persona — two tabs total, not four.** Stalled Seller and Wannabe ask three different questions — a single "Q2" column would mean "what's stopping you" for one persona and "have you tried selling before" for the other, which is confusing the moment both are in the same view. So personas stay split. But *within* one persona, funnel drop-off rows and completed sign-up rows share a tab — there's no ambiguity there, since it's the same three questions either way. An `Event` column (`funnel` or `signup`) and a `Stage` column (`q1`/`q2`/`q3`, blank for a completed signup) tell the two apart. The script auto-creates the **"Stalled Seller"** and **"Wannabe"** tabs (with the right headers) the first time each persona gets a real submission.
 
-**Drop-off is tracked too, not just completed sign-ups.** `script.js` fires a beacon the instant each survey question is answered — not just on final email submit — so a visitor who answers Q1 and closes the tab still shows up in the data. These land in a separate **"Stalled Seller - Funnel"** / **"Wannabe - Funnel"** tab (also auto-created), keyed by an anonymous `session_id`, so your real sign-up tabs stay a clean list of actual leads rather than being mixed with abandoned attempts.
+**Drop-off is tracked too, not just completed sign-ups.** `script.js` fires a beacon the instant each survey question is answered — not just on final email submit — so a visitor who answers Q1 and closes the tab still shows up as an `Event: funnel` row, `Email` left blank.
 
-1. Create a new Google Sheet. You don't need to add any tabs or headers yourself — the script creates all four tabs (with the right headers) the first time each persona/event type gets a real submission.
+1. Create a new Google Sheet. You don't need to add any tabs or headers yourself — the script creates both tabs (with the right headers) the first time each persona gets a real submission.
 
 2. In the Sheet: **Extensions → Apps Script**. Delete any starter code and paste:
 
@@ -81,32 +81,29 @@ To collect real sign-ups in a Google Sheet with no separate backend:
      var data = JSON.parse(e.postData.contents);
      var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-     if (data.event === 'funnel') {
-       return logFunnelEvent(ss, data);
-     }
-     return logSignup(ss, data);
-   }
-
-   // Real sign-ups only — requires a valid email. One tab per persona,
-   // since their questions mean different things (a shared "Q2" column
-   // would be ambiguous). Persona is implicit in which tab the row lands
-   // in, so it's not repeated as its own column.
-   function logSignup(ss, data) {
-     var email = (data.email || '').toString().trim();
-     var isValid = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email);
-     if (!isValid) {
-       return jsonOut({ ok: false, error: 'invalid_email' });
+     // Signups need a valid email; funnel (drop-off) events don't carry
+     // one at all, so only validate when an email is actually expected.
+     if (data.event === 'signup') {
+       var email = (data.email || '').toString().trim();
+       var isValid = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email);
+       if (!isValid) {
+         return jsonOut({ ok: false, error: 'invalid_email' });
+       }
      }
 
+     // One tab per persona — their questions mean different things, so a
+     // shared "Q2" column would be ambiguous. Funnel and signup events
+     // share the same tab within a persona: an Event/Stage column tells
+     // them apart, since there's no cross-persona ambiguity there.
      var SHEETS = {
        ss: {
          name: 'Stalled Seller',
-         headers: ['Timestamp', 'Email', 'Session ID', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
+         headers: ['Timestamp', 'Event', 'Stage', 'Session ID', 'Email', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
            "Q1: Got items to sell?", "Q2: What's stopping you?", 'Q3: How many items?']
        },
        wb: {
          name: 'Wannabe',
-         headers: ['Timestamp', 'Email', 'Session ID', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
+         headers: ['Timestamp', 'Event', 'Stage', 'Session ID', 'Email', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
            'Q1: Have clothes to sell?', 'Q2: Tried selling before?', "Q3: What's put you off?"]
        }
      };
@@ -115,37 +112,11 @@ To collect real sign-ups in a Google Sheet with no separate backend:
 
      sheet.appendRow([
        new Date(),
-       email,
-       data.session_id || '',
-       data.source || '',
-       data.utm_source || '',
-       data.utm_medium || '',
-       data.utm_campaign || '',
-       data.utm_content || '',
-       data.page_url || '',
-       data.q1 || '',
-       data.q2 || '',
-       data.q3 || ''
-     ]);
-     return jsonOut({ ok: true });
-   }
-
-   // Fired after every single question, whether or not they ever submit an
-   // email. No email column here on purpose — this tab is for counting
-   // how far people get, not for contacting them.
-   function logFunnelEvent(ss, data) {
-     var FUNNEL_SHEETS = {
-       ss: { name: 'Stalled Seller - Funnel' },
-       wb: { name: 'Wannabe - Funnel' }
-     };
-     var headers = ['Timestamp', 'Session ID', 'Stage', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page', 'Q1', 'Q2', 'Q3'];
-     var config = FUNNEL_SHEETS[data.persona] || FUNNEL_SHEETS.ss;
-     var sheet = getOrCreateSheet(ss, config.name, headers);
-
-     sheet.appendRow([
-       new Date(),
-       data.session_id || '',
+       data.event || '',
        data.stage || '',
+       data.session_id || '',
+       data.email || '',
+       data.source || '',
        data.utm_source || '',
        data.utm_medium || '',
        data.utm_campaign || '',
@@ -179,9 +150,9 @@ To collect real sign-ups in a Google Sheet with no separate backend:
 
 4. Paste that URL into `FORM_ENDPOINT` in `script.js`, replacing `REPLACE_WITH_YOUR_ENDPOINT`. Every valid submission becomes a new row automatically.
 
-**Reading the funnel data:** each row in a `- Funnel` tab is one moment someone answered a question — `Stage` is `q1`, `q2`, or `q3`, and the `Q1`/`Q2`/`Q3` columns show every answer given up to that point. To see drop-off, count distinct `Session ID`s per stage — e.g. if 100 sessions have a `q1` row but only 40 have a `q3` row, 60% dropped off somewhere in the survey. A session that also completed sign-up will have the same `Session ID` in both the `- Funnel` tab and the persona's main tab, so you can cross-reference which drop-offs did or didn't come back and convert within the same visit.
+**Reading the data:** each row is one event. `Event` is `funnel` or `signup`; for a `funnel` row, `Stage` is `q1`/`q2`/`q3` and `Email` is blank; for a `signup` row, `Stage` is blank and `Email` is filled in. The `Q1`/`Q2`/`Q3` columns always show every answer given up to that point, regardless of event type. To see drop-off, filter to `Event = funnel` and count distinct `Session ID`s per stage — e.g. if 100 sessions have a `q1` row but only 40 have a `q3` row, 60% dropped off somewhere in the survey. A session that converts will have the same `Session ID` across its `funnel` rows and its final `signup` row, so you can trace one visitor's whole path with a filter on `Session ID`.
 
-**If you already have "Stalled Seller"/"Wannabe" tabs from before this change:** they won't automatically pick up the new "Session ID" column or the funnel tabs. Easiest fix is to delete those two tabs (they should only have test rows in them) and let the script recreate them with the new headers on the next submission — or manually add a "Session ID" header to the existing tabs if you want to keep the rows already in them.
+**If you already have the four-tab version from before this change** (`Stalled Seller`, `Wannabe`, `Stalled Seller - Funnel`, `Wannabe - Funnel`): those won't automatically merge. Easiest fix is to delete all four (they should only have test rows in them) and let the script recreate the two new merged tabs on the next submission. If you want to keep existing rows, you'd need to manually copy the old `- Funnel` tab's rows into the corresponding persona tab, adding blank `Email` and filling in `Event: funnel` / `Stage` for each, and adding `Event: signup` to the old signup tab's existing rows — more manual work, so deleting and starting fresh is usually easier unless the old data actually matters.
 
 **Important:** the fetch in `script.js` sends the request as `text/plain`, not `application/json`. This is deliberate — Apps Script web apps don't implement CORS preflight (`OPTIONS`), and `application/json` would trigger one that fails silently. Don't change that header without also adding a `doOptions()` handler in the script.
 
