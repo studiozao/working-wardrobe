@@ -128,7 +128,6 @@ var COPY = {
     head: "Stock that stalled. One photo and it moves.",
     lede: "You've already listed things. This is the same outcome without the evening it usually costs.",
     hookNote: "Tap the shutter — that's the whole job.",
-    reassure: "Free to grade. We take a cut only from what sells.",
     doneLine: "We'll email you the moment your grades are ready to run.",
     // Which question's answer drives the answer-echo in "Why bother".
     // The CTA itself is a static "Get early access" everywhere now.
@@ -165,7 +164,6 @@ var COPY = {
     head: "Never sold a thing? Start with a photo.",
     lede: "No listings, no pricing, nothing to learn. You take one picture and we'll tell you what's there.",
     hookNote: "Have a go — nothing happens until you say so.",
-    reassure: "Nothing to pay, nothing to learn. You can stop at any point.",
     doneLine: "We'll email you a free test grade first, so you can see it before you commit to anything.",
     echoKey: 'q3',
     echoMap: {
@@ -210,9 +208,6 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
 
   var hookNoteEl = document.getElementById('hook-note');
   if (hookNoteEl) hookNoteEl.textContent = copy.hookNote;
-
-  var reassureEl = document.getElementById('survey-reassure');
-  if (reassureEl) reassureEl.textContent = copy.reassure;
 
   var doneLineEl = document.getElementById('done-line');
   if (doneLineEl) doneLineEl.textContent = copy.doneLine;

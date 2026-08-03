@@ -313,7 +313,6 @@ body.gated .sticky { display: none; }
 
 .survey-cta-wrap { margin-top: 6px; transition: opacity .3s ease; }
 .survey-cta-wrap[data-locked="true"] { opacity: .35; pointer-events: none; }
-.survey-reassure { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-soft); text-align: center; }
 
 /* ---------- How it works ---------- */
 .how { background: var(--paper-2); padding: 32px 22px; border-top: 1px solid var(--line); }
@@ -412,7 +411,12 @@ body.gated .sticky { display: none; }
 }
 .final .card.done { display: none; }
 .final h2 { font-size: 27px; line-height: 1.12; color: #fff; margin-bottom: 10px; }
-.final .card p { margin: 0 0 18px; font-size: 15.5px; line-height: 1.45; color: rgba(255,255,255,.86); max-width: 40ch; }
+/* :not(.microcopy) — without this, every property here (font-size
+   included) leaks onto the "No spam..." line too, since this rule's
+   specificity beats a bare .microcopy class selector. The previous fix
+   only overrode margin and missed that font-size was leaking the same
+   way, making the line render at 15.5px instead of its own 12.5px. */
+.final .card p:not(.microcopy) { margin: 0 0 18px; font-size: 15.5px; line-height: 1.45; color: rgba(255,255,255,.86); max-width: 40ch; }
 
 .field {
   width: 100%;
@@ -448,11 +452,7 @@ body.gated .sticky { display: none; }
 .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .btn:disabled { cursor: default; opacity: .7; }
 
-.microcopy { font-size: 12.5px; color: rgba(255,255,255,.72); text-align: center; }
-/* .final .card p (above) sets margin on every <p> in the card, including
-   this one, and its 2-class + type specificity beats .microcopy alone —
-   silently zeroing out this line's top margin. This wins the tie-break. */
-.final .card .microcopy { margin: 10px 0 0; }
+.microcopy { margin: 10px 0 0; font-size: 12.5px; color: rgba(255,255,255,.72); text-align: center; }
 
 .form-note { margin-top: 12px; font-size: 15px; display: none; text-align: center; }
 .form-note.show { display: block; }
