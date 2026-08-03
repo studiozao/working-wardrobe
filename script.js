@@ -227,7 +227,9 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     shutter.addEventListener('click', function () {
       if (frame.classList.contains('scanning') || frame.classList.contains('revealed')) return;
       frame.classList.add('scanning');
-      shutter.textContent = 'Grading…';
+      // The dot itself turns ochre while "grading" (CSS) — no text swap,
+      // since the button is now a ring+dot, not a text pill.
+      shutter.setAttribute('aria-label', 'Grading…');
       var delay = reduceMotion ? 0 : 1100;
       setTimeout(function () {
         frame.classList.remove('scanning');
@@ -271,14 +273,11 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     if (!document.body.classList.contains('gated')) return;
     document.body.classList.remove('gated');
 
+    // The opacity/blur reveal itself is a plain CSS transition on
+    // .screen-two (see style.css) — removing .gated is enough to trigger
+    // it, no animation class needed here.
     var screenTwo = document.querySelector('.screen-two');
-    if (screenTwo && !reduceMotion) {
-      screenTwo.classList.add('revealing');
-      screenTwo.addEventListener('animationend', function handler() {
-        screenTwo.classList.remove('revealing');
-        screenTwo.removeEventListener('animationend', handler);
-      });
-    }
+    if (screenTwo) screenTwo.removeAttribute('aria-hidden');
 
     var how = document.querySelector('.how');
     if (how && how.scrollIntoView) {
@@ -483,8 +482,34 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
     // trigger one. text/plain keeps this a "simple request" that skips
     // preflight entirely — the body is still valid JSON, just labelled
     // as text. The Apps Script side does JSON.parse(e.postData.contents).
+    //
+    // mode: 'no-cors' is deliberate too. Reading the response means
+    // following Apps Script's redirect (script.google.com -> a
+    // script.googleusercontent.com "echo" URL) under full CORS rules,
+    // which was observed to hang unpredictably for anywhere from ~2s to
+    // 40+ seconds before resolving or failing — even though the
+    // underlying Sheet write had already happened, since doPost runs and
+    // returns its result inline in the *first* response, before that
+    // redirect is even generated. So there's nothing to gain from waiting
+    // to read it, and doing so was the direct cause of the stuck
+    // "Just a sec…" button.
+    //
+    // The fix: don't wait on the network round-trip for the UI at all.
+    // Show success on a short fixed delay instead (matches how the
+    // funnel beacons already behave — fire-and-forget). Only a fetch
+    // rejection that happens *fast* (before that delay elapses) is
+    // treated as a real failure — an ad-blocker or genuinely offline
+    // device fails immediately; Google's redirect chain being slow does
+    // not, and by the time it would reject, the write has already landed.
+    var settled = false;
+    var successTimer = setTimeout(function () {
+      settled = true;
+      done();
+    }, 900);
+
     fetch(FORM_ENDPOINT, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         event: 'signup',
@@ -502,8 +527,14 @@ var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-moti
         q3: SURVEY_ANSWERS.q3
       })
     })
-    .then(function (r) { return r.json(); })
-    .then(function (data) { if (data && data.ok) { done(); } else { failed(); } })
-    .catch(failed);
+    .catch(function () {
+      if (!settled) {
+        clearTimeout(successTimer);
+        settled = true;
+        failed();
+      }
+      // else: already shown success: a rejection arriving this late is
+      // Google's redirect being slow, not a real delivery failure.
+    });
   });
 })();

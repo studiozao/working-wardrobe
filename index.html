@@ -51,6 +51,17 @@
       <div class="hook-frame" id="hook-frame">
         <div class="stripes" aria-hidden="true"></div>
         <p class="caption" aria-hidden="true">PHOTO: SOFT DAYLIGHT, CLOTHES<br>FOLDED ON A KITCHEN TABLE</p>
+
+        <!-- Viewfinder corner brackets — reads as a camera viewfinder,
+             not a re-drawn OS/app chrome. Same hand-drawn inline-SVG
+             approach as everything else on the page. -->
+        <svg class="viewfinder" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M5 17 V5 H17" />
+          <path d="M83 5 H95 V17" />
+          <path d="M5 83 V95 H17" />
+          <path d="M95 83 V95 H83" />
+        </svg>
+
         <div class="hook-flash" aria-hidden="true"></div>
         <div class="hook-scan" aria-hidden="true"></div>
         <div class="hook-result" aria-hidden="true">
@@ -76,7 +87,11 @@
             </div>
           </div>
         </div>
-        <button type="button" class="hook-shutter" id="hook-shutter">Try it on this pile</button>
+        <!-- A real camera shutter button (ring + dot), not a text pill —
+             the label moves to an aria-label plus the caption below. -->
+        <button type="button" class="hook-shutter" id="hook-shutter" aria-label="Try it on this pile — tap to take the photo">
+          <span class="shutter-ring"><span class="shutter-dot"></span></span>
+        </button>
       </div>
       <p class="hook-note" id="hook-note"></p>
     </div>
@@ -107,7 +122,7 @@
   <!-- ============ SCREEN 2 — hidden via body.gated until the survey is
        complete. The survey UI itself (all 3 questions visible at once) is
        unchanged; what's gated is everything below it. ============ -->
-  <div class="screen-two">
+  <div class="screen-two" aria-hidden="true">
 
   <!-- ============ HOW IT WORKS ============ -->
   <section class="how">

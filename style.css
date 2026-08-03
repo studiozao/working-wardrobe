@@ -128,6 +128,27 @@ p { margin: 0 0 1em; }
 }
 .hook-frame.shot .caption { display: none; }
 
+/* Viewfinder corner brackets — reads as a camera's focus reticle, not a
+   re-drawn OS/app chrome. Fades out once the shot is taken, same as a
+   real camera UI would once it's done focusing. */
+.viewfinder {
+  position: absolute;
+  inset: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
+  pointer-events: none;
+  transition: opacity .3s ease;
+}
+.viewfinder path {
+  fill: none;
+  stroke: rgba(30,29,25,.55);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.hook-frame.scanning .viewfinder,
+.hook-frame.revealed .viewfinder { opacity: 0; }
+
 /* Flash: a single quick white pulse the instant the shutter is tapped */
 .hook-flash {
   position: absolute;
@@ -184,21 +205,42 @@ p { margin: 0 0 1em; }
   padding: 5px 10px;
 }
 
+/* Real camera-style shutter: a ring with a filled dot, like an actual
+   phone camera app's capture button, rather than a text pill. */
 .hook-shutter {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 16px;
-  font: 700 14px var(--font-body);
-  background: var(--ink);
-  color: var(--paper);
+  bottom: 18px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: transparent;
   border: none;
-  border-radius: 99px;
-  padding: 13px 22px;
+  padding: 0;
   cursor: pointer;
 }
+.shutter-ring {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 2px 10px rgba(30,29,25,.25);
+}
+.shutter-dot {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .12s ease, background .18s ease;
+}
+.hook-shutter:active .shutter-dot { transform: scale(.88); }
+.hook-frame.scanning .shutter-dot { background: var(--ochre); }
+.hook-frame.scanning .hook-shutter { pointer-events: none; }
 .hook-frame.revealed .hook-shutter { display: none; }
-.hook-shutter:focus-visible { outline: 3px solid var(--ochre); outline-offset: 2px; }
+.hook-shutter:focus-visible { outline: 3px solid var(--ochre); outline-offset: 4px; }
 .hook-note { margin: 12px 2px 0; font-size: 13.5px; color: var(--ink-soft); text-align: center; }
 
 /* ---------- Survey ("soft gate") ----------
@@ -218,21 +260,23 @@ p { margin: 0 0 1em; }
 
 /* ---------- Hard gate ----------
    Screen 2 (everything from "How it works" down, including the footer)
-   is genuinely hidden — not just scrolled past — until the survey is
-   complete. The survey UI itself stays "soft" (all 3 questions visible
-   at once, answerable in any order); what's gated is the reveal of
-   what's below it. .gated is removed from <body> once all 3 are
-   answered, with a fade/slide transition, not an instant cut. */
-body.gated .screen-two { display: none; }
+   isn't reachable/interactive until the survey is complete, but it's not
+   fully hidden either — a dimmed, blurred, non-interactive hint of it
+   stays visible through the gate, so scrolling past the survey signals
+   "there's more, finish this first" rather than the page just ending.
+   .gated is removed from <body> once all 3 are answered; the opacity/
+   blur transition below handles the reveal automatically, no JS-driven
+   animation needed. */
+.screen-two {
+  transition: opacity .5s ease, filter .5s ease;
+}
+body.gated .screen-two {
+  opacity: .16;
+  filter: blur(3px) saturate(70%);
+  pointer-events: none;
+  user-select: none;
+}
 body.gated .sticky { display: none; }
-
-.screen-two.revealing {
-  animation: screenTwoIn .5s ease forwards;
-}
-@keyframes screenTwoIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
-}
 
 .survey { padding: 26px 22px 30px; }
 .survey-progress-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
@@ -404,14 +448,26 @@ body.gated .sticky { display: none; }
 .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .btn:disabled { cursor: default; opacity: .7; }
 
-.microcopy { margin-top: 10px; font-size: 12.5px; color: rgba(255,255,255,.72); text-align: center; }
+.microcopy { font-size: 12.5px; color: rgba(255,255,255,.72); text-align: center; }
+/* .final .card p (above) sets margin on every <p> in the card, including
+   this one, and its 2-class + type specificity beats .microcopy alone —
+   silently zeroing out this line's top margin. This wins the tie-break. */
+.final .card .microcopy { margin: 10px 0 0; }
 
 .form-note { margin-top: 12px; font-size: 15px; display: none; text-align: center; }
 .form-note.show { display: block; }
 .form-note.err { color: #ffd9d0; }
 
-/* Success state — swaps in for the card once the form is submitted */
-.done-state { display: none; }
+/* Success state — swaps in for the card once the form is submitted.
+   Needs the same green "card" treatment as .final .card: without its own
+   background, the white heading/text here is invisible against the
+   page's paper background. */
+.done-state {
+  display: none;
+  background: var(--green);
+  border-radius: 22px;
+  padding: 28px 22px;
+}
 .done-state.show { display: block; animation: riseIn .35s ease; }
 .done-icon {
   width: 46px; height: 46px;
@@ -507,6 +563,8 @@ footer a { color: var(--ink-soft); text-decoration: underline; text-underline-of
   .hook-frame.scanning .hook-scan,
   .hook-frame.revealed .hook-result { animation: none; }
   .hook-frame.revealed .hook-result { opacity: 1; transform: none; }
-  .screen-two.revealing { animation: none; opacity: 1; transform: none; }
+  .screen-two { transition: none; }
   .sticky { transition: none; }
+  .viewfinder { transition: none; }
+  .shutter-dot { transition: none; }
 }
