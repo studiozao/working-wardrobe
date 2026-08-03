@@ -56,6 +56,68 @@ var PERSONA = (function () {
   return 'ss';
 })();
 
+/* ---- Anonymous per-visit session id ----
+   Lets funnel-drop-off rows (see sendFunnelBeacon below) be told apart
+   from each other, and optionally cross-referenced against a completed
+   sign-up from the same session. Cached the same way as AD_SOURCE/
+   PERSONA — generated once, then reused for the rest of this tab's
+   session, no PII involved. */
+var SESSION_ID = (function () {
+  var KEY = 'ww_session_id';
+  try {
+    var cached = sessionStorage.getItem(KEY);
+    if (cached) return cached;
+    var id = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : ('sid-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+    sessionStorage.setItem(KEY, id);
+    return id;
+  } catch (e) {
+    return 'sid-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  }
+})();
+
+/* ---- Funnel drop-off tracking ----
+   Fires the instant each survey question is answered — not just on final
+   email submit — so a visitor who answers Q1 then closes the tab still
+   shows up in the data, not just the people who convert. Uses
+   navigator.sendBeacon so it survives the page unloading immediately
+   after the tap (fetch() would get cancelled by a fast tab close).
+   Failures are swallowed on purpose: a dropped analytics beacon must
+   never surface as an error to the visitor. See README.md for how these
+   land in a "<Persona> - Funnel" Sheet tab, separate from real sign-ups. */
+function sendFunnelBeacon(stage) {
+  if (!FORM_ENDPOINT || FORM_ENDPOINT.indexOf('REPLACE_WITH') === 0) return;
+
+  var payload = JSON.stringify({
+    event: 'funnel',
+    session_id: SESSION_ID,
+    persona: PERSONA,
+    stage: stage,
+    utm_source: AD_SOURCE.utm_source,
+    utm_medium: AD_SOURCE.utm_medium,
+    utm_campaign: AD_SOURCE.utm_campaign,
+    utm_content: AD_SOURCE.utm_content,
+    page_url: window.location.href,
+    q1: SURVEY_ANSWERS.q1,
+    q2: SURVEY_ANSWERS.q2,
+    q3: SURVEY_ANSWERS.q3
+  });
+
+  try {
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(FORM_ENDPOINT, new Blob([payload], { type: 'text/plain;charset=utf-8' }));
+    } else {
+      fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload,
+        keepalive: true
+      }).catch(function () {});
+    }
+  } catch (e) { /* analytics must never break the page */ }
+}
+
 /* ---- Screen 1: persona copy + 3-question hard gate ----
    Renders the headline/lede/questions for PERSONA, then reveals Screen 2
    (body.gated is removed) once all three are answered. The dynamic CTA
@@ -240,6 +302,7 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
 
   function pick(key, label, btnEl, optsEl) {
     SURVEY_ANSWERS[key] = label;
+    sendFunnelBeacon(key); // fires immediately — captures the drop-off point even if they never reach Screen 2
     if (key === copy.ctaKey) { ctaText = copy.ctaMap[label] || copy.ctaFallback; }
 
     // Register the choice (a half-second "yes, that's logged") before
@@ -447,6 +510,8 @@ var SURVEY_ANSWERS = { q1: null, q2: null, q3: null };
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({
+          event: 'signup',
+          session_id: SESSION_ID,
           email: email,
           source: form.id,
           utm_source: AD_SOURCE.utm_source,
