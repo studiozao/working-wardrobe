@@ -25,7 +25,7 @@
 
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="gated">
 
   <div class="topbar">
     <span class="brand">Working Wardrobe</span>
@@ -56,13 +56,23 @@
         <div class="hook-result" aria-hidden="true">
           <div class="hook-result-card">
             <div class="lead">This one's a keeper for someone.</div>
-            <div class="row">
-              <span class="item">Wool jumper</span>
-              <span class="price">£24–£31</span>
-            </div>
-            <div class="chips">
-              <span class="chip">Grade B+</span>
-              <span class="chip">Best route: resale</span>
+            <div class="result-body">
+              <!-- Hand-drawn item glyph, same inline-SVG language as the
+                   proof card and cascade below — no stock photography. -->
+              <svg class="result-icon" viewBox="0 0 52 52" aria-hidden="true">
+                <rect x="0" y="0" width="52" height="52" rx="12" fill="#ECE7DB"/>
+                <path d="M14 14 h24 l4 8 -6 4 v22 h-20 v-22 l-6 -4 z" fill="none" stroke="#55534B" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+              <div class="result-text">
+                <div class="row">
+                  <span class="hook-item-name">Wool jumper</span>
+                  <span class="price">£24–£31</span>
+                </div>
+                <div class="chips">
+                  <span class="chip">Grade B+</span>
+                  <span class="chip">Best route: resale</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -93,6 +103,11 @@
       </div>
     </div>
   </div>
+
+  <!-- ============ SCREEN 2 — hidden via body.gated until the survey is
+       complete. The survey UI itself (all 3 questions visible at once) is
+       unchanged; what's gated is everything below it. ============ -->
+  <div class="screen-two">
 
   <!-- ============ HOW IT WORKS ============ -->
   <section class="how">
@@ -252,6 +267,18 @@
       <a href="#">Privacy</a>
     </div>
   </footer>
+
+  </div> <!-- /.screen-two -->
+
+  <!-- ============ STICKY SCROLL CTA ============
+       Only ever shown once the survey is complete (body no longer
+       .gated) and the hero has scrolled out of view. -->
+  <div class="sticky" id="sticky" aria-hidden="true">
+    <div class="wrap">
+      <div class="line">Every piece finds a route.<span>Sold, donated or recycled — join early access.</span></div>
+      <button class="btn" id="sticky-btn" type="button" data-dynamic-cta>Get early access</button>
+    </div>
+  </div>
 
 <script src="script.js"></script>
 </body>

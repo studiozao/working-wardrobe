@@ -4,7 +4,7 @@ A no-build, no-dependency landing page used to run a persona-targeted desirabili
 
 Two Meta ad sets drive traffic to this **one page, one URL**. A `persona` query parameter decides the headline, lede, camera-hook copy, and 3-question survey a visitor sees.
 
-This is design direction **"1a — Proof First"**: a continuous single-scroll page (not split into a hard-gated Screen 1/Screen 2), led by an interactive camera-hook demo, with a "soft gate" survey — all three questions are visible and answerable at once, in any order, and the final CTA just dims until all three are answered rather than hiding the rest of the page.
+This is design direction **"1a — Proof First"**, led by an interactive camera-hook demo, with a hybrid gate: the survey itself is "soft" — all three questions are visible and answerable at once, in any order — but everything below the survey (How it works, Why bother, final capture, footer) is hard-hidden (`display:none`) until all three are answered, same as an earlier iteration of this page. A sticky bottom CTA bar appears once unlocked and the hero has scrolled out of view.
 
 ## Files
 
@@ -12,7 +12,7 @@ This is design direction **"1a — Proof First"**: a continuous single-scroll pa
 | --- | --- |
 | `index.html` | Markup only. No inline CSS/JS. |
 | `style.css` | All styling — design tokens, layout, the camera-hook demo, the survey UI, the routing-cascade animation, reduced-motion overrides. |
-| `script.js` | All behaviour — persona + UTM capture, the camera-hook demo, the soft-gate survey, scroll reveals, the cascade animation trigger, and the email-capture POST. |
+| `script.js` | All behaviour — persona + UTM capture, the camera-hook demo, the survey + hard-gate reveal, scroll reveals, the cascade animation trigger, the sticky bar, and the email-capture POST. |
 
 No build step. Open `index.html` directly in a browser, or serve the folder with any static file server.
 
@@ -30,11 +30,13 @@ The hero headline, lede, camera-hook note, survey questions, reassurance line, a
 
 Answering the persona's keyed question (Q2 for Stalled Seller, Q3 for Wannabe) sets the **CTA button text** dynamically and live — e.g. answering "Don't know what it's worth" changes the button to "Get my free grade" instead of the generic "Get early access", updating immediately as they tap, not just once at the end. It also may surface an **answer-echo** line in "Why bother" (e.g. "You said the haggling's the worst part — here's what replaces it") — hidden for fallback answers like "Something else".
 
-There are two CTA touchpoints: a button right under the survey (locked/dimmed until all 3 are answered — clicking it just scrolls to the real form and focuses the email field, it doesn't collect email itself) and the actual email form in the final green card at the bottom of the page.
+There are three CTA touchpoints, all sharing the same dynamic text: a button right under the survey (locked/dimmed until all 3 are answered — clicking it scrolls to the real form and focuses the email field, it doesn't collect email itself), the sticky bottom bar (visible once unlocked and the hero is scrolled past), and the actual email form in the final green card at the bottom of the page.
 
-## What's different from an earlier iteration of this page
+## What's different from the very first pass at design 1a
 
-An earlier build of this page used a **hard gate**: Screen 2 (How it works, Why bother, FAQ, final capture) was physically hidden (`display:none`) until all 3 questions were answered in sequence, one at a time, with a progress-dots + bridge-interstitial transition. Design 1a replaces that with the softer, single-scroll pattern described above. Alongside that change, the FAQ section, the three-checkmark trust strip, and the scroll-triggered sticky bar were all dropped — none of them are part of design 1a's layout. If any of those are wanted back, they'd need to be reintroduced deliberately rather than assumed to still be there.
+Design 1a was first implemented as a fully "soft" gate — nothing hidden below the survey, the CTA just dimming until complete. That was reverted: everything below the survey (How it works onward, including the footer) is hidden via `body.gated .screen-two { display: none }` until all 3 questions are answered, same mechanism as an earlier iteration of this page, with a fade/slide-in transition (`.screen-two.revealing`) on unlock rather than an instant cut. The sticky bar was also brought back. The FAQ section and the three-checkmark trust strip remain dropped — neither is part of design 1a's layout, so they'd need to be reintroduced deliberately if wanted.
+
+**Known bug fixed in this pass:** the camera-hook demo's item-name text ("Wool jumper") was invisible — it shared the class name `.item` with the routing cascade's travelling squares, which sets `.item { opacity: 0 }` globally. Renamed to `.hook-item-name`. A small hand-drawn SVG icon (same inline style as the proof card) was also added next to the item name and price, so the reveal shows a graphic alongside the text, not just numbers.
 
 ## Ad links — persona + UTM tags
 

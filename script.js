@@ -282,6 +282,29 @@ var ctaText = copy.ctaFallback;
     }
   }
 
+  // Unlocks Screen 2 the moment all 3 are answered — a one-way reveal,
+  // not something that re-locks if an answer is later changed. Fires
+  // once (guarded by body.gated) even though updateProgress() runs on
+  // every tap, including re-answers.
+  function unlockScreenTwo() {
+    if (!document.body.classList.contains('gated')) return;
+    document.body.classList.remove('gated');
+
+    var screenTwo = document.querySelector('.screen-two');
+    if (screenTwo && !reduceMotion) {
+      screenTwo.classList.add('revealing');
+      screenTwo.addEventListener('animationend', function handler() {
+        screenTwo.classList.remove('revealing');
+        screenTwo.removeEventListener('animationend', handler);
+      });
+    }
+
+    var how = document.querySelector('.how');
+    if (how && how.scrollIntoView) {
+      how.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+
   function updateProgress() {
     var n = answeredCount();
     var total = copy.questions.length;
@@ -292,6 +315,7 @@ var ctaText = copy.ctaFallback;
     var complete = n === total;
     if (ctaWrapEl) ctaWrapEl.setAttribute('data-locked', String(!complete));
     if (ctaBtnEl) ctaBtnEl.disabled = !complete;
+    if (complete) unlockScreenTwo();
   }
 
   function renderQuestions() {
@@ -383,6 +407,46 @@ var ctaText = copy.ctaFallback;
     });
   }, { threshold: 0.3 });
   io.observe(svg);
+})();
+
+/* ---- Sticky CTA appears after the hero scrolls out of view ----
+   CSS already forces it hidden while body.gated — this only controls
+   visibility once the survey is complete. */
+(function () {
+  var sticky = document.getElementById('sticky');
+  var hero = document.querySelector('.hero');
+  var finalForm = document.getElementById('form-final');
+  if (!sticky || !hero) return;
+
+  function setHidden(hidden) {
+    sticky.classList.toggle('show', !hidden);
+    sticky.setAttribute('aria-hidden', String(hidden));
+  }
+
+  if ('IntersectionObserver' in window) {
+    // Show once the hero is gone
+    new IntersectionObserver(function (entries) {
+      setHidden(entries[0].isIntersecting);
+    }, { threshold: 0 }).observe(hero);
+
+    // Hide again once the final form is in view (no need to nag)
+    if (finalForm) {
+      new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) setHidden(true);
+      }, { threshold: 0.2 }).observe(finalForm);
+    }
+  }
+
+  var stickyBtn = document.getElementById('sticky-btn');
+  if (stickyBtn) {
+    stickyBtn.addEventListener('click', function () {
+      var f = document.getElementById('form-final');
+      if (!f) return;
+      f.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      var input = f.querySelector('input[type=email]');
+      if (input) setTimeout(function () { input.focus(); }, reduceMotion ? 0 : 400);
+    });
+  }
 })();
 
 /* ---- Form handling: validate, POST, show inline state ---- */

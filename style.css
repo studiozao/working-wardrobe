@@ -164,10 +164,16 @@ p { margin: 0 0 1em; }
   border-radius: 18px;
   padding: 16px 18px;
 }
-.hook-result-card .lead { font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+.hook-result-card .lead { font-size: 13px; color: var(--ink-soft); margin-bottom: 10px; }
+.hook-result-card .result-body { display: flex; align-items: center; gap: 12px; }
+.hook-result-card .result-icon { flex: 0 0 auto; width: 44px; height: 44px; }
+.hook-result-card .result-text { flex: 1; min-width: 0; }
+/* Named .hook-item-name, not .item — the cascade below defines a global
+   .item { opacity: 0 } for its travelling squares, which was silently
+   hiding this text when both shared the same class name. */
 .hook-result-card .row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.hook-result-card .item { font-size: 24px; font-weight: 800; letter-spacing: -0.025em; }
-.hook-result-card .price { font-size: 24px; font-weight: 800; letter-spacing: -0.025em; color: var(--green); }
+.hook-result-card .hook-item-name { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.hook-result-card .price { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; color: var(--green); white-space: nowrap; }
 .hook-result-card .chips { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 .hook-result-card .chip {
   font-size: 12px;
@@ -208,6 +214,24 @@ p { margin: 0 0 1em; }
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ---------- Hard gate ----------
+   Screen 2 (everything from "How it works" down, including the footer)
+   is genuinely hidden — not just scrolled past — until the survey is
+   complete. The survey UI itself stays "soft" (all 3 questions visible
+   at once, answerable in any order); what's gated is the reveal of
+   what's below it. .gated is removed from <body> once all 3 are
+   answered, with a fade/slide transition, not an instant cut. */
+body.gated .screen-two { display: none; }
+body.gated .sticky { display: none; }
+
+.screen-two.revealing {
+  animation: screenTwoIn .5s ease forwards;
+}
+@keyframes screenTwoIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
 }
 
 .survey { padding: 26px 22px 30px; }
@@ -406,6 +430,25 @@ p { margin: 0 0 1em; }
   color: rgba(255,255,255,.7);
 }
 
+/* ---------- Sticky bar (scroll-triggered) ---------- */
+.sticky {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 40;
+  background: rgba(244,241,233,.94);
+  backdrop-filter: saturate(140%) blur(8px);
+  border-top: 1px solid var(--line);
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(120%);
+  transition: transform .28s ease;
+  box-shadow: 0 -6px 20px rgba(30,29,25,.08);
+}
+.sticky.show { transform: translateY(0); }
+.sticky .wrap { display: flex; align-items: center; gap: 12px; }
+.sticky .line { flex: 1; font-size: 14.5px; font-weight: 600; }
+.sticky .line span { color: var(--ink-soft); font-weight: 500; display: block; font-size: 12.5px; }
+.sticky .btn { width: auto; padding: 12px 18px; font-size: 15px; }
+
 /* ---------- Footer ---------- */
 footer {
   padding: 32px 22px 64px;
@@ -464,4 +507,6 @@ footer a { color: var(--ink-soft); text-decoration: underline; text-underline-of
   .hook-frame.scanning .hook-scan,
   .hook-frame.revealed .hook-result { animation: none; }
   .hook-frame.revealed .hook-result { opacity: 1; transform: none; }
+  .screen-two.revealing { animation: none; opacity: 1; transform: none; }
+  .sticky { transition: none; }
 }
