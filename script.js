@@ -125,7 +125,7 @@ function sendFunnelBeacon(stage) {
    echo mapping are unchanged from before. */
 var COPY = {
   ss: {
-    head: "Stock that stalled. One photo and it moves.",
+    head: "Still meant to sell that pile? One photo and it moves.",
     lede: "You've already listed things. This is the same outcome without the evening it usually costs.",
     hookNote: "Tap the shutter — that's the whole job.",
     doneLine: "We'll email you the moment the app drops — you'll get exclusive early access before anyone else.",
@@ -161,7 +161,7 @@ var COPY = {
     ]
   },
   wb: {
-    head: "Never sold a thing? Start with a photo.",
+    head: "Haven't managed to sell yet? Start with a photo.",
     lede: "No listings, no pricing, nothing to learn. You take one picture and we'll tell you what's there.",
     hookNote: "Have a go — nothing happens until you say so.",
     doneLine: "We'll email you the moment the app drops — you'll get exclusive early access before anyone else.",
