@@ -1,20 +1,24 @@
 # Working Wardrobe
 
-A no-build, no-dependency landing page used to run a persona-gated desirability test for Working Wardrobe: photograph a bag of clothes, an AI waterfall grades and routes each item to resale, donation, or recycling, and the user gets paid on whatever sells.
+A no-build, no-dependency landing page used to run a persona-targeted desirability test for Working Wardrobe: photograph a bag of clothes, an AI waterfall grades and routes each item to resale, donation, or recycling, and the user gets paid on whatever sells.
 
-Two Meta ad sets drive traffic to this **one page, one URL**. A `persona` query parameter decides which headline and 3-question mini-survey a visitor sees; everything after that (How it works, Why different, FAQ, final capture) is shared and identical.
+Two Meta ad sets drive traffic to this **one page, one URL**. A `persona` query parameter decides the headline, lede, camera-hook copy, and 3-question survey a visitor sees.
+
+This is design direction **"1a — Proof First"**: a continuous single-scroll page (not split into a hard-gated Screen 1/Screen 2), led by an interactive camera-hook demo, with a "soft gate" survey — all three questions are visible and answerable at once, in any order, and the final CTA just dims until all three are answered rather than hiding the rest of the page.
 
 ## Files
 
 | File | What it is |
 | --- | --- |
 | `index.html` | Markup only. No inline CSS/JS. |
-| `style.css` | All styling — design tokens, layout, the survey UI, the routing-cascade animation, reduced-motion overrides. |
-| `script.js` | All behaviour — persona + UTM capture, the 3-question hard gate, scroll reveals, the cascade animation trigger, the sticky bar, and the email-capture POST. |
+| `style.css` | All styling — design tokens, layout, the camera-hook demo, the survey UI, the routing-cascade animation, reduced-motion overrides. |
+| `script.js` | All behaviour — persona + UTM capture, the camera-hook demo, the soft-gate survey, scroll reveals, the cascade animation trigger, and the email-capture POST. |
 
 No build step. Open `index.html` directly in a browser, or serve the folder with any static file server.
 
-## How the persona gate works
+Uses two Google Fonts: Schibsted Grotesk (body/display) and IBM Plex Mono (small uppercase labels/counters) — loaded via a `<link>` in `index.html`. This is a deliberate choice of design 1a; earlier iterations of this page were intentionally system-font-only to avoid a render-blocking font request on cold mobile ad traffic. That tradeoff is now accepted since it's what the chosen design specifies.
+
+## How the persona targeting works
 
 On load, the page reads a `persona` query param:
 
@@ -22,9 +26,15 @@ On load, the page reads a `persona` query param:
 - `persona=wb` → **Wannabe** copy and questions (someone curious but has never tried)
 - anything else, or no param at all → defaults to `ss`
 
-Nothing below the fold — no "How it works", no FAQ, no email form, no sticky bar — is reachable until all 3 questions are answered. This is a hard gate (`body.gated .screen-two { display: none }` in `style.css`), not just something scrolled past.
+The hero headline, lede, camera-hook note, survey questions, reassurance line, and post-signup message are all persona-specific — see the `COPY` object at the top of `script.js`.
 
-Answering the persona's keyed question (Q2 for Stalled Seller, Q3 for Wannabe) also sets the **final CTA button text** dynamically — e.g. answering "Don't know what it's worth" changes the button to "Get my free grade" instead of the generic "Get early access". See the `COPY` object at the top of `script.js` for the full copy + CTA mapping per persona.
+Answering the persona's keyed question (Q2 for Stalled Seller, Q3 for Wannabe) sets the **CTA button text** dynamically and live — e.g. answering "Don't know what it's worth" changes the button to "Get my free grade" instead of the generic "Get early access", updating immediately as they tap, not just once at the end. It also may surface an **answer-echo** line in "Why bother" (e.g. "You said the haggling's the worst part — here's what replaces it") — hidden for fallback answers like "Something else".
+
+There are two CTA touchpoints: a button right under the survey (locked/dimmed until all 3 are answered — clicking it just scrolls to the real form and focuses the email field, it doesn't collect email itself) and the actual email form in the final green card at the bottom of the page.
+
+## What's different from an earlier iteration of this page
+
+An earlier build of this page used a **hard gate**: Screen 2 (How it works, Why bother, FAQ, final capture) was physically hidden (`display:none`) until all 3 questions were answered in sequence, one at a time, with a progress-dots + bridge-interstitial transition. Design 1a replaces that with the softer, single-scroll pattern described above. Alongside that change, the FAQ section, the three-checkmark trust strip, and the scroll-triggered sticky bar were all dropped — none of them are part of design 1a's layout. If any of those are wanted back, they'd need to be reintroduced deliberately rather than assumed to still be there.
 
 ## Ad links — persona + UTM tags
 
@@ -175,10 +185,10 @@ Any static host works — GitHub Pages, Netlify, Vercel, S3. Since `index.html` 
 
 This page has been iterated on across several rounds. A few things are intentional and shouldn't be casually "cleaned up":
 
-- **No fabricated stats or testimonials.** The one stat used (31% keep a bag that never leaves the house) is real research data, not invented copy.
-- **The routing cascade SVG animation** in the "How it works" section is hand-built, not a stock illustration or Lottie file.
-- **The email copy never promises payment for the whole bag** — only for whatever actually sells. The one exception, "What if nothing sells?" in the FAQ, is deliberately blunt.
-- **Accessibility**: `prefers-reduced-motion` is respected throughout, focus-visible states are explicit, and form errors use `aria-live`/`role="alert"`.
-- **Colour has one job each.** `--ochre` is the only action colour (every tappable CTA button) — full saturation on Screen 2, `--ochre-soft` only on Screen 1's question options and progress dots. `--green` never appears on a button; it marks resolution only (the final card, the cascade's resale outcome, the trust checkmarks). Don't reach for green on a new button or ochre-soft on a new Screen 2 CTA — re-read section 5 of the design brief before changing this.
-- **One typeface, one job each.** There's no serif/italic anywhere on the page anymore — hierarchy is weight and colour only (`.pain` 500/soft, `.promise` 800/full ink). A serif-italic headline reads as editorial/lifestyle-blog, not the bold flat sans this category's actual Instagram ads use. Don't reintroduce a second typeface without a real reason.
+- **No fabricated stats or testimonials.** Don't invent a number or quote to strengthen the "why bother" section — if a real one isn't available, leave it out (as it currently is) rather than make one up.
+- **The routing cascade SVG animation** in the "How it works" section is hand-built, not a stock illustration or Lottie file. The camera-hook demo (item silhouette, grade, route) uses the same hand-built inline-SVG/CSS approach — no stock photography, no generic illustration, no Lottie.
+- **The email copy never promises payment for the whole bag** — only for whatever actually sells.
+- **Accessibility**: `prefers-reduced-motion` is respected throughout (including the camera-hook's flash/scan/reveal animations), focus-visible states are explicit, and form errors use `role="alert"`.
+- **Colour has one job each.** `--ochre` is the only action colour (every tappable CTA button). `--green` never appears on a button; it marks resolution only (the final card, the cascade's resale outcome). Don't reach for green on a new button.
+- **One typeface pairing, one job each.** Schibsted Grotesk for body/display, IBM Plex Mono only for small uppercase labels/counters (eyebrows, the survey count, the camera caption). Don't introduce a third face without a real reason.
 - **The proof card** (item silhouette + grade + route) lives in "How it works" now, right before the cascade — it leads into the cascade as one worked example, not a duplicate of it. It started in the hero and was moved here because it clashed with the bolder sans headline; it's still flagged for design review, and the explicitly stated fallback if it stops earning its place is to cut it, not keep patching it.
