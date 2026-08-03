@@ -50,18 +50,14 @@ The email form POSTs to `FORM_ENDPOINT` (set at the top of `script.js`). It's a 
 
 To collect real sign-ups in a Google Sheet with no separate backend:
 
-1. Create a new Google Sheet. Add a header row:
+**Each persona gets its own tab, not a shared sheet.** Stalled Seller and Wannabe ask three different questions — a single "Q2" column would mean "what's stopping you" for one persona and "have you tried selling before" for the other, which is confusing the moment both are in the same view. The script below routes each submission to a **"Stalled Seller"** tab or a **"Wannabe"** tab (auto-created on first submission, with headers that match that persona's actual questions), inside the same spreadsheet.
 
-   ```
-   Timestamp | Email | Source | utm_source | utm_medium | utm_campaign | utm_content
-   | Landing Page | Persona | Q1 | Q2 | Q3
-   ```
+1. Create a new Google Sheet. You don't need to add any tabs or headers yourself — the script creates both tabs (with the right headers) the first time each persona gets a real submission.
 
 2. In the Sheet: **Extensions → Apps Script**. Delete any starter code and paste:
 
    ```js
    function doPost(e) {
-     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
      var data = JSON.parse(e.postData.contents);
      var email = (data.email || '').toString().trim();
      var isValid = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email);
@@ -70,6 +66,31 @@ To collect real sign-ups in a Google Sheet with no separate backend:
          JSON.stringify({ ok: false, error: 'invalid_email' })
        ).setMimeType(ContentService.MimeType.JSON);
      }
+
+     // One tab per persona — their questions mean different things, so a
+     // shared "Q2" column would be ambiguous. Persona is implicit in which
+     // tab the row lands in, so it's not repeated as its own column.
+     var SHEETS = {
+       ss: {
+         name: 'Stalled Seller',
+         headers: ['Timestamp', 'Email', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
+           "Q1: Got items to sell?", "Q2: What's stopping you?", 'Q3: How many items?']
+       },
+       wb: {
+         name: 'Wannabe',
+         headers: ['Timestamp', 'Email', 'Source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'Landing Page',
+           'Q1: Have clothes to sell?', 'Q2: Tried selling before?', "Q3: What's put you off?"]
+       }
+     };
+     var config = SHEETS[data.persona] || SHEETS.ss;
+
+     var ss = SpreadsheetApp.getActiveSpreadsheet();
+     var sheet = ss.getSheetByName(config.name);
+     if (!sheet) {
+       sheet = ss.insertSheet(config.name);
+       sheet.appendRow(config.headers);
+     }
+
      sheet.appendRow([
        new Date(),
        email,
@@ -79,7 +100,6 @@ To collect real sign-ups in a Google Sheet with no separate backend:
        data.utm_campaign || '',
        data.utm_content || '',
        data.page_url || '',
-       data.persona || '',
        data.q1 || '',
        data.q2 || '',
        data.q3 || ''
