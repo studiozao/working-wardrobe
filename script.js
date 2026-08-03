@@ -4,7 +4,7 @@
    which is fine for a quick preview. Replace before running real traffic.
    See README.md for the full Google Sheet + Apps Script setup.
    ========================================================================== */
-var FORM_ENDPOINT = "REPLACE_WITH_YOUR_ENDPOINT";
+var FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbw2ydmM5X2sXiCZ3FvUaJLhvoEeai1kPGjROVquAPLKuudjL0tPAO6JESIFM7Ah-arZ/exec";
 
 /* ---- Capture which ad this visit came from (UTM params) ----
    Read once on load, then cached in sessionStorage so it still travels
