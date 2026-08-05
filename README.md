@@ -50,15 +50,17 @@ Both the persona and standard UTM parameters travel in the query string and are 
 
 ```
 Stalled Seller ad set, effort hook:
-  https://yourdomain.com/
+  https://makeroom.studiozao.com/
     ?persona=ss&utm_source=instagram&utm_medium=paid_social
     &utm_campaign=stalled_seller&utm_content=hook_effort
 
 Wannabe ad set, curiosity hook:
-  https://yourdomain.com/
+  https://makeroom.studiozao.com/
     ?persona=wb&utm_source=instagram&utm_medium=paid_social
     &utm_campaign=wannabe&utm_content=hook_curiosity
 ```
+
+(Line breaks above are just for readability — paste each as one continuous URL, no spaces. On Meta, `?persona=ss` or `?persona=wb` goes in the ad's Website URL field; the `utm_*` params go in the separate "URL parameters" field, and Meta appends them automatically.)
 
 Give each ad creative its own `utm_content` value — no code changes needed to add a third or fourth ad.
 
