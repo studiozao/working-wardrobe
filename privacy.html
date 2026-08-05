@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — Working Wardrobe</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Page-specific only — everything else reuses style.css's tokens so
+     this matches the rest of the site rather than looking bolted on. */
+  .legal { max-width: 640px; margin: 0 auto; padding: 40px 22px 80px; }
+  .legal h1 { font-size: clamp(28px, 7vw, 36px); margin-bottom: 6px; }
+  .legal .updated { font: 600 12px var(--font-mono); color: var(--ink-soft); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 32px; }
+  .legal h2 { font-size: 19px; margin: 32px 0 10px; }
+  .legal p, .legal li { font-size: 15.5px; color: var(--ink-soft); line-height: 1.55; }
+  .legal ul { padding-left: 20px; margin: 0 0 1em; }
+  .legal a { color: var(--green); }
+  .legal .back { display: inline-block; margin-bottom: 24px; font-size: 14px; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="brand">Working Wardrobe</span>
+    <span class="badge">Early access</span>
+  </div>
+
+  <div class="legal">
+    <a class="back" href="index.html">&larr; Back</a>
+    <h1>Privacy</h1>
+    <p class="updated">Last updated: August 2026</p>
+
+    <p>Working Wardrobe is an early-access product test run by Studio Zao. This page explains what we collect on this site, why, and what your rights are. It's written in plain English on purpose — if anything's unclear, email us (see Contact below).</p>
+
+    <h2>Who's responsible for this data</h2>
+    <p>Studio Zao is the data controller. Contact: <a href="mailto:REPLACE_WITH_YOUR_EMAIL">REPLACE_WITH_YOUR_EMAIL</a>.</p>
+
+    <h2>What we collect</h2>
+    <p>Two categories, depending on how far you get through the page:</p>
+    <ul>
+      <li><strong>If you answer the survey questions</strong> (whether or not you go on to give an email): your answers, an anonymous session identifier generated in your browser, which ad or link brought you here (UTM parameters), the page URL, and a timestamp. No name, no email, at this stage.</li>
+      <li><strong>If you submit your email</strong>: your email address, plus the same session identifier, answers, and ad/UTM data as above, now linked together.</li>
+    </ul>
+    <p>Because the session identifier is shared between the two, if you do submit your email, your earlier "anonymous" answers become linked to it. We're telling you that plainly rather than treating the two as unrelated.</p>
+
+    <h2>Why we collect it</h2>
+    <ul>
+      <li>To understand whether this concept is worth building, and which questions or ad angles resonate — this is an active desirability test, not a finished product.</li>
+      <li>If you give us your email, to contact you about early access when it's ready.</li>
+    </ul>
+    <p>We don't use this data for advertising, don't sell it, and don't share it with anyone outside Studio Zao and our data processor (below).</p>
+
+    <h2>Our legal basis</h2>
+    <ul>
+      <li><strong>Survey answers and analytics (no email given):</strong> legitimate interests — understanding how people respond to an early-stage product test, weighed against the low impact on you given the data is minimal and not used to target you.</li>
+      <li><strong>Email and follow-up contact:</strong> your consent, given by the affirmative act of typing your email and submitting the form.</li>
+    </ul>
+
+    <h2>Where it's stored</h2>
+    <p>In a Google Sheet, within Studio Zao's Google Workspace account, via a Google Apps Script that receives submissions from this page. Google acts as our data processor for this.</p>
+
+    <h2>How long we keep it</h2>
+    <p>Up to 12 months from when it's collected, after which it's deleted. This may be shortened once the early-access test concludes.</p>
+
+    <h2>Cookies and similar technology</h2>
+    <p>This site doesn't use cookies. It uses your browser's built-in session storage to remember your session identifier, which ad brought you here, and which version of the page you're seeing, so the page works correctly if you navigate around during one visit. This storage clears itself when you close the tab.</p>
+
+    <h2>Your rights</h2>
+    <p>Under UK GDPR, you can ask us to access, correct, or delete your data, or object to how we're using it. Email <a href="mailto:REPLACE_WITH_YOUR_EMAIL">REPLACE_WITH_YOUR_EMAIL</a> and we'll act on it. You can also complain to the <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener">Information Commissioner's Office</a> if you think we've got something wrong.</p>
+  </div>
+</body>
+</html>

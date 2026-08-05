@@ -141,20 +141,57 @@ To collect real sign-ups in a Google Sheet with no separate backend:
    function jsonOut(obj) {
      return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
    }
+
+   // Retention: deletes rows older than 12 months, per the retention
+   // period stated in privacy.html. Not called by doPost — runs on its
+   // own schedule (see step 3a below). Safe to run repeatedly; it only
+   // ever deletes, never modifies surviving rows.
+   function purgeOldRows() {
+     var CUTOFF_DAYS = 365;
+     var cutoff = new Date(Date.now() - CUTOFF_DAYS * 24 * 60 * 60 * 1000);
+     var ss = SpreadsheetApp.getActiveSpreadsheet();
+     ['Stalled Seller', 'Wannabe'].forEach(function (name) {
+       var sheet = ss.getSheetByName(name);
+       if (!sheet) return;
+       var values = sheet.getDataRange().getValues();
+       // Walk bottom-up so deleting a row doesn't shift the indices of
+       // rows still to be checked.
+       for (var i = values.length - 1; i >= 1; i--) {
+         var timestamp = values[i][0];
+         if (timestamp instanceof Date && timestamp < cutoff) {
+           sheet.deleteRow(i + 1);
+         }
+       }
+     });
+   }
    ```
 
-3. **Deploy → New deployment → type "Web app"**.
+3. **Set up automatic deletion (retention).** In the Apps Script editor: **Triggers** (clock icon, left sidebar) → **Add Trigger** → function `purgeOldRows`, event source **Time-driven**, type **Day timer** (once a day is plenty). Save. This keeps the Sheet in line with the 12-month retention period stated in `privacy.html` without you having to remember to do it manually.
+
+4. **Deploy → New deployment → type "Web app"**.
    - Execute as: **Me**
    - Who has access: **Anyone**
    - Click Deploy, authorise it, and copy the Web app URL (ends in `/exec`).
 
-4. Paste that URL into `FORM_ENDPOINT` in `script.js`, replacing `REPLACE_WITH_YOUR_ENDPOINT`. Every valid submission becomes a new row automatically.
+5. Paste that URL into `FORM_ENDPOINT` in `script.js`, replacing `REPLACE_WITH_YOUR_ENDPOINT`. Every valid submission becomes a new row automatically.
 
 **Reading the data:** each row is one event. `Event` is `funnel` or `signup`; for a `funnel` row, `Stage` is `q1`/`q2`/`q3` and `Email` is blank; for a `signup` row, `Stage` is blank and `Email` is filled in. The `Q1`/`Q2`/`Q3` columns always show every answer given up to that point, regardless of event type. To see drop-off, filter to `Event = funnel` and count distinct `Session ID`s per stage — e.g. if 100 sessions have a `q1` row but only 40 have a `q3` row, 60% dropped off somewhere in the survey. A session that converts will have the same `Session ID` across its `funnel` rows and its final `signup` row, so you can trace one visitor's whole path with a filter on `Session ID`.
 
 **If you already have the four-tab version from before this change** (`Stalled Seller`, `Wannabe`, `Stalled Seller - Funnel`, `Wannabe - Funnel`): those won't automatically merge. Easiest fix is to delete all four (they should only have test rows in them) and let the script recreate the two new merged tabs on the next submission. If you want to keep existing rows, you'd need to manually copy the old `- Funnel` tab's rows into the corresponding persona tab, adding blank `Email` and filling in `Event: funnel` / `Stage` for each, and adding `Event: signup` to the old signup tab's existing rows — more manual work, so deleting and starting fresh is usually easier unless the old data actually matters.
 
 **Important:** the fetch in `script.js` sends the request as `text/plain`, not `application/json`. This is deliberate — Apps Script web apps don't implement CORS preflight (`OPTIONS`), and `application/json` would trigger one that fails silently. Don't change that header without also adding a `doOptions()` handler in the script.
+
+## Privacy & compliance
+
+The funnel-tracking rows (see above) and the email itself are personal data under UK GDPR — the shared `session_id` between a visitor's funnel rows and their eventual signup row means the "anonymous" answers become linkable the moment they convert. `privacy.html` (linked from the footer) is the actual privacy notice; keep it in sync with reality if the data collected here changes.
+
+What's in place and what's a known, deliberate gap, as of this note:
+
+- **Privacy notice**: live at `privacy.html`. Covers what's collected, lawful basis, where it's stored, and retention.
+- **Lawful basis**: legitimate interests for the pre-email survey/analytics data, consent (by the act of submitting the form) for the email and follow-up contact.
+- **Processor**: Google, via Google Workspace (not a personal Google account) — Workspace's standard terms include Google's Data Processing Amendment, which is what makes this an acceptable Art. 28 arrangement. If this Sheet is ever moved to a personal Google account, that assumption no longer holds and needs rechecking.
+- **Retention**: 12 months, enforced by the `purgeOldRows` Apps Script trigger (see step 3 above), matching what `privacy.html` states. If you change the retention period in the policy, update `CUTOFF_DAYS` in `purgeOldRows` to match — the two are not linked automatically.
+- **PECR consent for the funnel-tracking session storage — deliberately not implemented yet.** Storing `ww_session_id` for analytics purposes without a consent mechanism is a real, known gap (PECR reg. 6 technically requires consent for this, not just a privacy notice). This was raised and consciously deferred because a consent banner risked increasing drop-off on a page that's already measuring drop-off — adding friction to fix a measurement-integrity concern before the test has run wasn't judged worth it at this stage. This is a live decision, not a resolved one: revisit before this scales into a larger, non-test campaign, or if legal risk tolerance changes. The lower-risk fallback if this needs closing without a banner is to strip `session_id` out of the funnel beacon entirely and log aggregate counts only — this avoids the consent question but loses the ability to compute true per-session drop-off rates or cross-reference a drop-off against its eventual conversion.
 
 ## Deploying
 
