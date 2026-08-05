@@ -73,7 +73,7 @@ p { margin: 0 0 1em; }
   margin: 0 auto;
 }
 .topbar .brand { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
-.topbar .brand .logo-mark { width: 19px; height: 19px; color: var(--ink); flex: none; }
+.topbar .brand .logo-mark { width: 30px; height: 30px; color: var(--ink); flex: none; }
 .topbar .badge {
   font-size: 11px;
   font-weight: 600;
