@@ -1,6 +1,6 @@
-# Working Wardrobe
+# Makeroom
 
-A no-build, no-dependency landing page used to run a persona-targeted desirability test for Working Wardrobe: photograph a bag of clothes, an AI waterfall grades and routes each item to resale, donation, or recycling, and the user gets paid on whatever sells.
+A no-build, no-dependency landing page used to run a persona-targeted desirability test for Makeroom: photograph a bag of clothes, an AI waterfall grades and routes each item to resale, donation, or recycling, and the user gets paid on whatever sells.
 
 Two Meta ad sets drive traffic to this **one page, one URL**. A `persona` query parameter decides the headline, lede, camera-hook copy, and 3-question survey a visitor sees.
 
