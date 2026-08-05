@@ -49,15 +49,25 @@ The camera hook now looks like an actual camera viewfinder rather than a text-la
 Both the persona and standard UTM parameters travel in the query string and are cached in `sessionStorage` on first load, so they survive Instagram's in-app browser stripping the query string on an internal redirect.
 
 ```
-Stalled Seller ad set, effort hook:
+Stalled Seller — "One photo. Not a whole evening.":
   https://makeroom.studiozao.com/
     ?persona=ss&utm_source=instagram&utm_medium=paid_social
-    &utm_campaign=stalled_seller&utm_content=hook_effort
+    &utm_campaign=stalled_seller&utm_content=one_photo_evening
 
-Wannabe ad set, curiosity hook:
+Stalled Seller — "What's your stuff really worth?" (group photo):
+  https://makeroom.studiozao.com/
+    ?persona=ss&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=stalled_seller&utm_content=stuff_worth_group
+
+Wannabe — "Tried selling and gave up?":
   https://makeroom.studiozao.com/
     ?persona=wb&utm_source=instagram&utm_medium=paid_social
-    &utm_campaign=wannabe&utm_content=hook_curiosity
+    &utm_campaign=wannabe&utm_content=tried_gave_up
+
+Wannabe — "Find out what it's worth.":
+  https://makeroom.studiozao.com/
+    ?persona=wb&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=wannabe&utm_content=find_out_worth
 ```
 
 (Line breaks above are just for readability — paste each as one continuous URL, no spaces. On Meta, `?persona=ss` or `?persona=wb` goes in the ad's Website URL field; the `utm_*` params go in the separate "URL parameters" field, and Meta appends them automatically.)
