@@ -122,7 +122,7 @@ To collect real sign-ups in a Google Sheet with no separate backend:
      var config = SHEETS[data.persona] || SHEETS.ss;
      var sheet = getOrCreateSheet(ss, config.name, config.headers);
 
-     sheet.appendRow([
+     var rowValues = [
        new Date(),
        data.event || '',
        data.stage || '',
@@ -137,8 +137,30 @@ To collect real sign-ups in a Google Sheet with no separate backend:
        data.q1 || '',
        data.q2 || '',
        data.q3 || ''
-     ]);
+     ];
+
+     // One row per visitor, not one row per question answered. A returning
+     // session (same Session ID) updates its existing row in place instead
+     // of appending a new one, so the Sheet always shows "how far did this
+     // person get" rather than a separate row per funnel stage.
+     var existingRow = data.session_id ? findRowBySessionId(sheet, data.session_id) : -1;
+     if (existingRow > 0) {
+       var firstSeen = sheet.getRange(existingRow, 1).getValue();
+       rowValues[0] = (firstSeen instanceof Date) ? firstSeen : new Date();
+       sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+     } else {
+       sheet.appendRow(rowValues);
+     }
      return jsonOut({ ok: true });
+   }
+
+   function findRowBySessionId(sheet, sessionId) {
+     var values = sheet.getDataRange().getValues();
+     var SESSION_ID_COL = 3; // 0-indexed — column D, "Session ID"
+     for (var i = 1; i < values.length; i++) {
+       if (values[i][SESSION_ID_COL] === sessionId) return i + 1; // 1-indexed row
+     }
+     return -1;
    }
 
    function getOrCreateSheet(ss, name, headers) {
@@ -185,9 +207,13 @@ To collect real sign-ups in a Google Sheet with no separate backend:
    - Who has access: **Anyone**
    - Click Deploy, authorise it, and copy the Web app URL (ends in `/exec`).
 
-5. Paste that URL into `FORM_ENDPOINT` in `script.js`, replacing `REPLACE_WITH_YOUR_ENDPOINT`. Every valid submission becomes a new row automatically.
+5. Paste that URL into `FORM_ENDPOINT` in `script.js`, replacing `REPLACE_WITH_YOUR_ENDPOINT`.
 
-**Reading the data:** each row is one event. `Event` is `funnel` or `signup`; for a `funnel` row, `Stage` is `q1`/`q2`/`q3` and `Email` is blank; for a `signup` row, `Stage` is blank and `Email` is filled in. The `Q1`/`Q2`/`Q3` columns always show every answer given up to that point, regardless of event type. To see drop-off, filter to `Event = funnel` and count distinct `Session ID`s per stage — e.g. if 100 sessions have a `q1` row but only 40 have a `q3` row, 60% dropped off somewhere in the survey. A session that converts will have the same `Session ID` across its `funnel` rows and its final `signup` row, so you can trace one visitor's whole path with a filter on `Session ID`.
+**Reading the data:** each row is one *visitor* (one Session ID), not one event — answering Q1, then Q2, then Q3 updates the same row each time rather than adding new ones. `Event` is `funnel` or `signup` and reflects how far that visitor last got: `funnel` + `Stage: q1` means they've only answered the first question so far; if they go on to answer Q2, that same row flips to `Stage: q2`; if they eventually submit their email, it flips to `Event: signup`, `Stage` blank, `Email` filled in. The `Q1`/`Q2`/`Q3` columns always hold every answer given so far. To see drop-off, filter to `Event = funnel` and group by `Stage` — e.g. if 60 rows are stuck at `q1` and only 40 ever reached `q3`, that's your drop-off point. Because updates are keyed on `Session ID`, a visitor who closes the tab and comes back *within the same browser session* continues the same row rather than starting a new one; a new session (new tab/device) always gets its own row.
+
+**If you already have the old one-row-per-question version:** existing rows aren't touched by this change — the update-in-place behaviour only kicks in for new submissions after you redeploy. Old sessions that already have 3 separate rows (one per question answered) will stay as 3 rows; only sessions starting fresh will collapse to one row each. If your Sheet currently only has test data in it, simplest is to delete those test rows so you start clean.
+
+**To apply this if you already deployed the old version:** open the Apps Script project (Extensions → Apps Script from the Sheet), replace the entire script with the updated code above, then **Deploy → Manage deployments → click the pencil/edit icon on the existing deployment → Version: New version → Deploy**. This updates the code without changing the `/exec` URL, so `FORM_ENDPOINT` in `script.js` doesn't need to change.
 
 **If you already have the four-tab version from before this change** (`Stalled Seller`, `Wannabe`, `Stalled Seller - Funnel`, `Wannabe - Funnel`): those won't automatically merge. Easiest fix is to delete all four (they should only have test rows in them) and let the script recreate the two new merged tabs on the next submission. If you want to keep existing rows, you'd need to manually copy the old `- Funnel` tab's rows into the corresponding persona tab, adding blank `Email` and filling in `Event: funnel` / `Stage` for each, and adding `Event: signup` to the old signup tab's existing rows — more manual work, so deleting and starting fresh is usually easier unless the old data actually matters.
 
