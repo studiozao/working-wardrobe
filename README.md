@@ -59,10 +59,10 @@ Stalled Seller — "What's your stuff really worth?" (group photo):
     ?persona=ss&utm_source=instagram&utm_medium=paid_social
     &utm_campaign=stalled_seller&utm_content=stuff_worth_group
 
-Wannabe — "Tried selling and gave up?":
+Wannabe — "Easier way to sell online":
   https://makeroom.studiozao.com/
     ?persona=wb&utm_source=instagram&utm_medium=paid_social
-    &utm_campaign=wannabe&utm_content=tried_gave_up
+    &utm_campaign=wannabe&utm_content=easier_way_to_sell
 
 Wannabe — "Find out what it's worth.":
   https://makeroom.studiozao.com/
