@@ -116,6 +116,14 @@ p { margin: 0 0 1em; }
   inset: 0;
   background: repeating-linear-gradient(135deg, #e3ddcd 0 10px, #ece7db 10px 20px);
 }
+/* The example photo only appears once the shutter fires, same moment
+   the flash/scan plays — as if that tap actually took the shot. */
+.hook-frame.scanning .stripes,
+.hook-frame.revealed .stripes {
+  background:
+    linear-gradient(180deg, rgba(30,29,25,.5), rgba(30,29,25,.25)),
+    url('jumper.png') center 42%/cover no-repeat;
+}
 .hook-frame .caption {
   position: absolute;
   inset: 0;
