@@ -49,40 +49,30 @@ The camera hook now looks like an actual camera viewfinder rather than a text-la
 Both the persona and standard UTM parameters travel in the query string and are cached in `sessionStorage` on first load, so they survive Instagram's in-app browser stripping the query string on an internal redirect.
 
 ```
-Stalled Seller — "One photo. Not a whole evening." (Instagram only):
-  Website URL:
-    https://makeroom.studiozao.com/
-      ?persona=ss&utm_source=instagram&utm_medium=paid_social
-      &utm_campaign=stalled_seller&utm_content=one_photo_evening
+Stalled Seller — "One photo. Not a whole evening.":
+  https://makeroom.studiozao.com/
+    ?persona=ss&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=stalled_seller&utm_content=one_photo_evening
 
-Stalled Seller — "What's your stuff really worth?" (group photo, Instagram only):
-  Website URL:
-    https://makeroom.studiozao.com/
-      ?persona=ss&utm_source=instagram&utm_medium=paid_social
-      &utm_campaign=stalled_seller&utm_content=stuff_worth_group
+Stalled Seller — "What's your stuff really worth?" (group photo):
+  https://makeroom.studiozao.com/
+    ?persona=ss&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=stalled_seller&utm_content=stuff_worth_group
 
-Wannabe — "Easier way to sell online" (running on both Instagram and Facebook):
-  Website URL:
-    https://makeroom.studiozao.com/
-      ?persona=wb&utm_medium=paid_social
-      &utm_campaign=wannabe&utm_content=easier_way_to_sell
-  URL parameters (separate field in Ads Manager):
-    utm_source={{site_source_name}}
+Wannabe — "Easier way to sell online":
+  https://makeroom.studiozao.com/
+    ?persona=wb&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=wannabe&utm_content=easier_way_to_sell
 
-Wannabe — "Find out what it's worth." (running on both Instagram and Facebook):
-  Website URL:
-    https://makeroom.studiozao.com/
-      ?persona=wb&utm_medium=paid_social
-      &utm_campaign=wannabe&utm_content=find_out_worth
-  URL parameters (separate field in Ads Manager):
-    utm_source={{site_source_name}}
+Wannabe — "Find out what it's worth.":
+  https://makeroom.studiozao.com/
+    ?persona=wb&utm_source=instagram&utm_medium=paid_social
+    &utm_campaign=wannabe&utm_content=find_out_worth
 ```
 
-(Line breaks above are just for readability — paste each as one continuous URL, no spaces.)
+(Line breaks above are just for readability — paste each as one continuous URL, no spaces. On Meta, `?persona=ss` or `?persona=wb` goes in the ad's Website URL field; the `utm_*` params go in the separate "URL parameters" field, and Meta appends them automatically.)
 
-**Stalled Seller ads** run on Instagram only, so `utm_source=instagram` is just hardcoded into the link — no need for anything dynamic.
-
-**Wannabe ads** run on both platforms, so `utm_source` can't be a fixed string without lying on whichever platform it's wrong for. Meta has a built-in macro for this: `{{site_source_name}}`, which it substitutes with the actual platform (`fb` or `ig`) at click time — put that in the ad's separate **URL parameters** field (not the main Website URL), and everything else (`persona`, `utm_medium`, `utm_campaign`, `utm_content`) stays in the Website URL field as a fixed string, same as before. Meta appends the URL parameters field's contents automatically, so the two combine into one full URL without duplicating anything.
+Give each ad creative its own `utm_content` value — no code changes needed to add a third or fourth ad.
 
 Give each ad creative its own `utm_content` value — no code changes needed to add a third or fourth ad.
 
